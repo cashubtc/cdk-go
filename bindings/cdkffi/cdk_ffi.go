@@ -154,17 +154,18 @@ func LiftFromRustBuffer[GoType any](bufReader BufReader[GoType], rbuf RustBuffer
 	return item
 }
 
-func rustCallWithError[E any, U any](converter BufReader[*E], callback func(*C.RustCallStatus) U) (U, *E) {
+func rustCallWithError[E any, U any](converter BufReader[E], callback func(*C.RustCallStatus) U) (U, E) {
 	var status C.RustCallStatus
 	returnValue := callback(&status)
 	err := checkCallStatus(converter, status)
 	return returnValue, err
 }
 
-func checkCallStatus[E any](converter BufReader[*E], status C.RustCallStatus) *E {
+func checkCallStatus[E any](converter BufReader[E], status C.RustCallStatus) E {
 	switch status.code {
 	case 0:
-		return nil
+		var zero E
+		return zero
 	case 1:
 		return LiftFromRustBuffer(converter, GoRustBuffer{inner: status.errorBuf})
 	case 2:
@@ -363,7 +364,7 @@ func init() {
 
 func uniffiCheckChecksums() {
 	// Get the bindings contract version from our ComponentInterface
-	bindingsContractVersion := 29
+	bindingsContractVersion := 30
 	// Get the scaffolding contract version by calling the into the dylib
 	scaffoldingContractVersion := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint32_t {
 		return C.ffi_cdk_ffi_uniffi_contract_version()
@@ -3715,26 +3716,26 @@ func (FfiDestroyerBytes) Destroy(_ []byte) {}
 // https://github.com/mozilla/uniffi-rs/blob/0dc031132d9493ca812c3af6e7dd60ad2ea95bf0/uniffi_bindgen/src/bindings/kotlin/templates/ObjectRuntime.kt#L31
 
 type FfiObject struct {
-	pointer       unsafe.Pointer
+	handle        C.uint64_t
 	callCounter   atomic.Int64
-	cloneFunction func(unsafe.Pointer, *C.RustCallStatus) unsafe.Pointer
-	freeFunction  func(unsafe.Pointer, *C.RustCallStatus)
+	cloneFunction func(C.uint64_t, *C.RustCallStatus) C.uint64_t
+	freeFunction  func(C.uint64_t, *C.RustCallStatus)
 	destroyed     atomic.Bool
 }
 
 func newFfiObject(
-	pointer unsafe.Pointer,
-	cloneFunction func(unsafe.Pointer, *C.RustCallStatus) unsafe.Pointer,
-	freeFunction func(unsafe.Pointer, *C.RustCallStatus),
+	handle C.uint64_t,
+	cloneFunction func(C.uint64_t, *C.RustCallStatus) C.uint64_t,
+	freeFunction func(C.uint64_t, *C.RustCallStatus),
 ) FfiObject {
 	return FfiObject{
-		pointer:       pointer,
+		handle:        handle,
 		cloneFunction: cloneFunction,
 		freeFunction:  freeFunction,
 	}
 }
 
-func (ffiObject *FfiObject) incrementPointer(debugName string) unsafe.Pointer {
+func (ffiObject *FfiObject) incrementPointer(debugName string) C.uint64_t {
 	for {
 		counter := ffiObject.callCounter.Load()
 		if counter <= -1 {
@@ -3748,8 +3749,8 @@ func (ffiObject *FfiObject) incrementPointer(debugName string) unsafe.Pointer {
 		}
 	}
 
-	return rustCall(func(status *C.RustCallStatus) unsafe.Pointer {
-		return ffiObject.cloneFunction(ffiObject.pointer, status)
+	return rustCall(func(status *C.RustCallStatus) C.uint64_t {
+		return ffiObject.cloneFunction(ffiObject.handle, status)
 	})
 }
 
@@ -3768,8 +3769,11 @@ func (ffiObject *FfiObject) destroy() {
 }
 
 func (ffiObject *FfiObject) freeRustArcPtr() {
+	if ffiObject.handle == 0 {
+		return
+	}
 	rustCall(func(status *C.RustCallStatus) int32 {
-		ffiObject.freeFunction(ffiObject.pointer, status)
+		ffiObject.freeFunction(ffiObject.handle, status)
 		return 0
 	})
 }
@@ -3805,7 +3809,7 @@ func (_self *ActiveSubscription) Id() string {
 func (_self *ActiveSubscription) Recv() (NotificationPayload, error) {
 	_pointer := _self.ffiObject.incrementPointer("*ActiveSubscription")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -3841,7 +3845,7 @@ func (_self *ActiveSubscription) Recv() (NotificationPayload, error) {
 func (_self *ActiveSubscription) TryRecv() (*NotificationPayload, error) {
 	_pointer := _self.ffiObject.incrementPointer("*ActiveSubscription")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -3881,15 +3885,15 @@ type FfiConverterActiveSubscription struct{}
 
 var FfiConverterActiveSubscriptionINSTANCE = FfiConverterActiveSubscription{}
 
-func (c FfiConverterActiveSubscription) Lift(pointer unsafe.Pointer) *ActiveSubscription {
+func (c FfiConverterActiveSubscription) Lift(handle C.uint64_t) *ActiveSubscription {
 	result := &ActiveSubscription{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_activesubscription(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_activesubscription(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_activesubscription(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_activesubscription(handle, status)
 			},
 		),
 	}
@@ -3898,21 +3902,28 @@ func (c FfiConverterActiveSubscription) Lift(pointer unsafe.Pointer) *ActiveSubs
 }
 
 func (c FfiConverterActiveSubscription) Read(reader io.Reader) *ActiveSubscription {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterActiveSubscription) Lower(value *ActiveSubscription) unsafe.Pointer {
+func (c FfiConverterActiveSubscription) Lower(value *ActiveSubscription) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*ActiveSubscription")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*ActiveSubscription")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterActiveSubscription) Write(writer io.Writer, value *ActiveSubscription) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalActiveSubscription(handle uint64) *ActiveSubscription {
+	return FfiConverterActiveSubscriptionINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalActiveSubscription(value *ActiveSubscription) uint64 {
+	return uint64(FfiConverterActiveSubscriptionINSTANCE.Lower(value))
 }
 
 type FfiDestroyerActiveSubscription struct{}
@@ -3974,15 +3985,15 @@ type FfiConverterNostrWaitInfo struct{}
 
 var FfiConverterNostrWaitInfoINSTANCE = FfiConverterNostrWaitInfo{}
 
-func (c FfiConverterNostrWaitInfo) Lift(pointer unsafe.Pointer) *NostrWaitInfo {
+func (c FfiConverterNostrWaitInfo) Lift(handle C.uint64_t) *NostrWaitInfo {
 	result := &NostrWaitInfo{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_nostrwaitinfo(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_nostrwaitinfo(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_nostrwaitinfo(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_nostrwaitinfo(handle, status)
 			},
 		),
 	}
@@ -3991,21 +4002,28 @@ func (c FfiConverterNostrWaitInfo) Lift(pointer unsafe.Pointer) *NostrWaitInfo {
 }
 
 func (c FfiConverterNostrWaitInfo) Read(reader io.Reader) *NostrWaitInfo {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterNostrWaitInfo) Lower(value *NostrWaitInfo) unsafe.Pointer {
+func (c FfiConverterNostrWaitInfo) Lower(value *NostrWaitInfo) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*NostrWaitInfo")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*NostrWaitInfo")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterNostrWaitInfo) Write(writer io.Writer, value *NostrWaitInfo) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalNostrWaitInfo(handle uint64) *NostrWaitInfo {
+	return FfiConverterNostrWaitInfoINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalNostrWaitInfo(value *NostrWaitInfo) uint64 {
+	return uint64(FfiConverterNostrWaitInfoINSTANCE.Lower(value))
 }
 
 type FfiDestroyerNostrWaitInfo struct{}
@@ -4069,7 +4087,7 @@ type NpubCashClient struct {
 //
 // Returns an error if the secret key is invalid or cannot be parsed
 func NewNpubCashClient(baseUrl string, nostrSecretKey string) (*NpubCashClient, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_npubcashclient_new(FfiConverterStringINSTANCE.Lower(baseUrl), FfiConverterStringINSTANCE.Lower(nostrSecretKey), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -4097,7 +4115,7 @@ func NewNpubCashClient(baseUrl string, nostrSecretKey string) (*NpubCashClient, 
 func (_self *NpubCashClient) GetQuotes(since *uint64) ([]NpubCashQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*NpubCashClient")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -4143,7 +4161,7 @@ func (_self *NpubCashClient) GetQuotes(since *uint64) ([]NpubCashQuote, error) {
 func (_self *NpubCashClient) SetMintUrl(mintUrl string) (NpubCashUserResponse, error) {
 	_pointer := _self.ffiObject.incrementPointer("*NpubCashClient")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -4183,15 +4201,15 @@ type FfiConverterNpubCashClient struct{}
 
 var FfiConverterNpubCashClientINSTANCE = FfiConverterNpubCashClient{}
 
-func (c FfiConverterNpubCashClient) Lift(pointer unsafe.Pointer) *NpubCashClient {
+func (c FfiConverterNpubCashClient) Lift(handle C.uint64_t) *NpubCashClient {
 	result := &NpubCashClient{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_npubcashclient(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_npubcashclient(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_npubcashclient(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_npubcashclient(handle, status)
 			},
 		),
 	}
@@ -4200,21 +4218,28 @@ func (c FfiConverterNpubCashClient) Lift(pointer unsafe.Pointer) *NpubCashClient
 }
 
 func (c FfiConverterNpubCashClient) Read(reader io.Reader) *NpubCashClient {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterNpubCashClient) Lower(value *NpubCashClient) unsafe.Pointer {
+func (c FfiConverterNpubCashClient) Lower(value *NpubCashClient) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*NpubCashClient")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*NpubCashClient")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterNpubCashClient) Write(writer io.Writer, value *NpubCashClient) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalNpubCashClient(handle uint64) *NpubCashClient {
+	return FfiConverterNpubCashClientINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalNpubCashClient(value *NpubCashClient) uint64 {
+	return uint64(FfiConverterNpubCashClientINSTANCE.Lower(value))
 }
 
 type FfiDestroyerNpubCashClient struct{}
@@ -4274,7 +4299,7 @@ type PaymentRequest struct {
 
 // Parse a payment request from its encoded string representation
 func PaymentRequestFromString(encoded string) (*PaymentRequest, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_paymentrequest_from_string(FfiConverterStringINSTANCE.Lower(encoded), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -4349,7 +4374,7 @@ func (_self *PaymentRequest) SingleUse() *bool {
 func (_self *PaymentRequest) ToBech32String() (string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*PaymentRequest")
 	defer _self.ffiObject.decrementPointer()
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_method_paymentrequest_to_bech32_string(
 				_pointer, _uniffiStatus),
@@ -4381,7 +4406,7 @@ func (_self *PaymentRequest) ToBech32String() (string, error) {
 func (_self *PaymentRequest) ToBip321(bolt11 *string, bolt12 *string) (string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*PaymentRequest")
 	defer _self.ffiObject.decrementPointer()
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_method_paymentrequest_to_bip321(
 				_pointer, FfiConverterOptionalStringINSTANCE.Lower(bolt11), FfiConverterOptionalStringINSTANCE.Lower(bolt12), _uniffiStatus),
@@ -4439,15 +4464,15 @@ type FfiConverterPaymentRequest struct{}
 
 var FfiConverterPaymentRequestINSTANCE = FfiConverterPaymentRequest{}
 
-func (c FfiConverterPaymentRequest) Lift(pointer unsafe.Pointer) *PaymentRequest {
+func (c FfiConverterPaymentRequest) Lift(handle C.uint64_t) *PaymentRequest {
 	result := &PaymentRequest{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_paymentrequest(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_paymentrequest(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_paymentrequest(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_paymentrequest(handle, status)
 			},
 		),
 	}
@@ -4456,21 +4481,28 @@ func (c FfiConverterPaymentRequest) Lift(pointer unsafe.Pointer) *PaymentRequest
 }
 
 func (c FfiConverterPaymentRequest) Read(reader io.Reader) *PaymentRequest {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterPaymentRequest) Lower(value *PaymentRequest) unsafe.Pointer {
+func (c FfiConverterPaymentRequest) Lower(value *PaymentRequest) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*PaymentRequest")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*PaymentRequest")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterPaymentRequest) Write(writer io.Writer, value *PaymentRequest) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalPaymentRequest(handle uint64) *PaymentRequest {
+	return FfiConverterPaymentRequestINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalPaymentRequest(value *PaymentRequest) uint64 {
+	return uint64(FfiConverterPaymentRequestINSTANCE.Lower(value))
 }
 
 type FfiDestroyerPaymentRequest struct{}
@@ -4504,7 +4536,7 @@ type PaymentRequestPayload struct {
 
 // Decode PaymentRequestPayload from JSON string
 func PaymentRequestPayloadFromString(json string) (*PaymentRequestPayload, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_paymentrequestpayload_from_string(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -4583,15 +4615,15 @@ type FfiConverterPaymentRequestPayload struct{}
 
 var FfiConverterPaymentRequestPayloadINSTANCE = FfiConverterPaymentRequestPayload{}
 
-func (c FfiConverterPaymentRequestPayload) Lift(pointer unsafe.Pointer) *PaymentRequestPayload {
+func (c FfiConverterPaymentRequestPayload) Lift(handle C.uint64_t) *PaymentRequestPayload {
 	result := &PaymentRequestPayload{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_paymentrequestpayload(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_paymentrequestpayload(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_paymentrequestpayload(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_paymentrequestpayload(handle, status)
 			},
 		),
 	}
@@ -4600,21 +4632,28 @@ func (c FfiConverterPaymentRequestPayload) Lift(pointer unsafe.Pointer) *Payment
 }
 
 func (c FfiConverterPaymentRequestPayload) Read(reader io.Reader) *PaymentRequestPayload {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterPaymentRequestPayload) Lower(value *PaymentRequestPayload) unsafe.Pointer {
+func (c FfiConverterPaymentRequestPayload) Lower(value *PaymentRequestPayload) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*PaymentRequestPayload")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*PaymentRequestPayload")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterPaymentRequestPayload) Write(writer io.Writer, value *PaymentRequestPayload) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalPaymentRequestPayload(handle uint64) *PaymentRequestPayload {
+	return FfiConverterPaymentRequestPayloadINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalPaymentRequestPayload(value *PaymentRequestPayload) uint64 {
+	return uint64(FfiConverterPaymentRequestPayloadINSTANCE.Lower(value))
 }
 
 type FfiDestroyerPaymentRequestPayload struct{}
@@ -4688,7 +4727,7 @@ func (_self *PreparedMelt) Amount() Amount {
 func (_self *PreparedMelt) Cancel() error {
 	_pointer := _self.ffiObject.incrementPointer("*PreparedMelt")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -4732,7 +4771,7 @@ func (_self *PreparedMelt) ChangeAmountWithoutSwap() Amount {
 func (_self *PreparedMelt) Confirm() (FinalizedMelt, error) {
 	_pointer := _self.ffiObject.incrementPointer("*PreparedMelt")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -4768,7 +4807,7 @@ func (_self *PreparedMelt) Confirm() (FinalizedMelt, error) {
 func (_self *PreparedMelt) ConfirmWithOptions(options MeltConfirmOptions) (FinalizedMelt, error) {
 	_pointer := _self.ffiObject.incrementPointer("*PreparedMelt")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -4938,15 +4977,15 @@ type FfiConverterPreparedMelt struct{}
 
 var FfiConverterPreparedMeltINSTANCE = FfiConverterPreparedMelt{}
 
-func (c FfiConverterPreparedMelt) Lift(pointer unsafe.Pointer) *PreparedMelt {
+func (c FfiConverterPreparedMelt) Lift(handle C.uint64_t) *PreparedMelt {
 	result := &PreparedMelt{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_preparedmelt(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_preparedmelt(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_preparedmelt(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_preparedmelt(handle, status)
 			},
 		),
 	}
@@ -4955,21 +4994,28 @@ func (c FfiConverterPreparedMelt) Lift(pointer unsafe.Pointer) *PreparedMelt {
 }
 
 func (c FfiConverterPreparedMelt) Read(reader io.Reader) *PreparedMelt {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterPreparedMelt) Lower(value *PreparedMelt) unsafe.Pointer {
+func (c FfiConverterPreparedMelt) Lower(value *PreparedMelt) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*PreparedMelt")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*PreparedMelt")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterPreparedMelt) Write(writer io.Writer, value *PreparedMelt) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalPreparedMelt(handle uint64) *PreparedMelt {
+	return FfiConverterPreparedMeltINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalPreparedMelt(value *PreparedMelt) uint64 {
+	return uint64(FfiConverterPreparedMeltINSTANCE.Lower(value))
 }
 
 type FfiDestroyerPreparedMelt struct{}
@@ -5023,7 +5069,7 @@ func (_self *PreparedSend) Amount() Amount {
 func (_self *PreparedSend) Cancel() error {
 	_pointer := _self.ffiObject.incrementPointer("*PreparedSend")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -5055,26 +5101,26 @@ func (_self *PreparedSend) Cancel() error {
 func (_self *PreparedSend) Confirm(memo *string) (*Token, error) {
 	_pointer := _self.ffiObject.incrementPointer("*PreparedSend")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
-			res := C.ffi_cdk_ffi_rust_future_complete_pointer(handle, status)
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
 			return res
 		},
 		// liftFn
-		func(ffi unsafe.Pointer) *Token {
+		func(ffi C.uint64_t) *Token {
 			return FfiConverterTokenINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_preparedsend_confirm(
 			_pointer, FfiConverterOptionalStringINSTANCE.Lower(memo)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_pointer(handle, continuation, data)
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
 		},
 		// freeFn
 		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_pointer(handle)
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
 		},
 	)
 
@@ -5129,15 +5175,15 @@ type FfiConverterPreparedSend struct{}
 
 var FfiConverterPreparedSendINSTANCE = FfiConverterPreparedSend{}
 
-func (c FfiConverterPreparedSend) Lift(pointer unsafe.Pointer) *PreparedSend {
+func (c FfiConverterPreparedSend) Lift(handle C.uint64_t) *PreparedSend {
 	result := &PreparedSend{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_preparedsend(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_preparedsend(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_preparedsend(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_preparedsend(handle, status)
 			},
 		),
 	}
@@ -5146,21 +5192,28 @@ func (c FfiConverterPreparedSend) Lift(pointer unsafe.Pointer) *PreparedSend {
 }
 
 func (c FfiConverterPreparedSend) Read(reader io.Reader) *PreparedSend {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterPreparedSend) Lower(value *PreparedSend) unsafe.Pointer {
+func (c FfiConverterPreparedSend) Lower(value *PreparedSend) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*PreparedSend")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*PreparedSend")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterPreparedSend) Write(writer io.Writer, value *PreparedSend) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalPreparedSend(handle uint64) *PreparedSend {
+	return FfiConverterPreparedSendINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalPreparedSend(value *PreparedSend) uint64 {
+	return uint64(FfiConverterPreparedSendINSTANCE.Lower(value))
 }
 
 type FfiDestroyerPreparedSend struct{}
@@ -5206,7 +5259,7 @@ type Token struct {
 
 // Decode token from string representation
 func TokenDecode(encodedToken string) (*Token, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_token_decode(FfiConverterStringINSTANCE.Lower(encodedToken), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -5219,7 +5272,7 @@ func TokenDecode(encodedToken string) (*Token, error) {
 
 // Decode token from raw bytes
 func TokenFromRawBytes(bytes []byte) (*Token, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_token_from_raw_bytes(FfiConverterBytesINSTANCE.Lower(bytes), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -5232,7 +5285,7 @@ func TokenFromRawBytes(bytes []byte) (*Token, error) {
 
 // Create a new Token from string
 func TokenFromString(encodedToken string) (*Token, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_token_from_string(FfiConverterStringINSTANCE.Lower(encodedToken), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -5295,7 +5348,7 @@ func (_self *Token) Memo() *string {
 func (_self *Token) MintUrl() (MintUrl, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Token")
 	defer _self.ffiObject.decrementPointer()
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_method_token_mint_url(
 				_pointer, _uniffiStatus),
@@ -5337,7 +5390,7 @@ func (_self *Token) P2pkRefundPubkeys() []string {
 func (_self *Token) Proofs(mintKeysets []KeySetInfo) ([]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Token")
 	defer _self.ffiObject.decrementPointer()
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_method_token_proofs(
 				_pointer, FfiConverterSequenceKeySetInfoINSTANCE.Lower(mintKeysets), _uniffiStatus),
@@ -5355,7 +5408,7 @@ func (_self *Token) Proofs(mintKeysets []KeySetInfo) ([]Proof, error) {
 func (_self *Token) ProofsSimple() ([]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Token")
 	defer _self.ffiObject.decrementPointer()
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_method_token_proofs_simple(
 				_pointer, _uniffiStatus),
@@ -5385,7 +5438,7 @@ func (_self *Token) SpendingConditions() []SpendingConditions {
 func (_self *Token) ToRawBytes() ([]byte, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Token")
 	defer _self.ffiObject.decrementPointer()
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_method_token_to_raw_bytes(
 				_pointer, _uniffiStatus),
@@ -5415,7 +5468,7 @@ func (_self *Token) Unit() *CurrencyUnit {
 func (_self *Token) Value() (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Token")
 	defer _self.ffiObject.decrementPointer()
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_method_token_value(
 				_pointer, _uniffiStatus),
@@ -5437,15 +5490,15 @@ type FfiConverterToken struct{}
 
 var FfiConverterTokenINSTANCE = FfiConverterToken{}
 
-func (c FfiConverterToken) Lift(pointer unsafe.Pointer) *Token {
+func (c FfiConverterToken) Lift(handle C.uint64_t) *Token {
 	result := &Token{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_token(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_token(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_token(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_token(handle, status)
 			},
 		),
 	}
@@ -5454,21 +5507,28 @@ func (c FfiConverterToken) Lift(pointer unsafe.Pointer) *Token {
 }
 
 func (c FfiConverterToken) Read(reader io.Reader) *Token {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterToken) Lower(value *Token) unsafe.Pointer {
+func (c FfiConverterToken) Lower(value *Token) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*Token")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*Token")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterToken) Write(writer io.Writer, value *Token) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalToken(handle uint64) *Token {
+	return FfiConverterTokenINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalToken(value *Token) uint64 {
+	return uint64(FfiConverterTokenINSTANCE.Lower(value))
 }
 
 type FfiDestroyerToken struct{}
@@ -5724,7 +5784,7 @@ type Wallet struct {
 // - `Postgres { url }` — built-in Rust Postgres backend
 // - `Custom { db }` — foreign-language implementation of `WalletDatabase`
 func NewWallet(mintUrl string, unit CurrencyUnit, mnemonic string, store WalletStore, config WalletConfig) (*Wallet, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_wallet_new(FfiConverterStringINSTANCE.Lower(mintUrl), FfiConverterCurrencyUnitINSTANCE.Lower(unit), FfiConverterStringINSTANCE.Lower(mnemonic), FfiConverterWalletStoreINSTANCE.Lower(store), FfiConverterWalletConfigINSTANCE.Lower(config), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -5739,7 +5799,7 @@ func NewWallet(mintUrl string, unit CurrencyUnit, mnemonic string, store WalletS
 func (_self *Wallet) CalculateFee(proofCount uint32, keysetId string) (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -5778,7 +5838,7 @@ func (_self *Wallet) CalculateFee(proofCount uint32, keysetId string) (Amount, e
 func (_self *Wallet) CheckAllPendingProofs() (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -5823,7 +5883,7 @@ func (_self *Wallet) CheckAllPendingProofs() (Amount, error) {
 func (_self *Wallet) CheckMintQuote(quoteId string) (MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -5868,7 +5928,7 @@ func (_self *Wallet) CheckMintQuote(quoteId string) (MintQuote, error) {
 func (_self *Wallet) CheckMintQuoteStatus(quoteId string) (MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -5904,7 +5964,7 @@ func (_self *Wallet) CheckMintQuoteStatus(quoteId string) (MintQuote, error) {
 func (_self *Wallet) CheckProofsSpent(proofs []Proof) ([]bool, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -5940,7 +6000,7 @@ func (_self *Wallet) CheckProofsSpent(proofs []Proof) ([]bool, error) {
 func (_self *Wallet) CheckSendStatus(operationId string) (bool, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.int8_t {
@@ -5974,7 +6034,7 @@ func (_self *Wallet) CheckSendStatus(operationId string) (bool, error) {
 func (_self *Wallet) FetchActiveKeyset() (KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6010,7 +6070,7 @@ func (_self *Wallet) FetchActiveKeyset() (KeySetInfo, error) {
 func (_self *Wallet) FetchMintInfo() (*MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6054,7 +6114,7 @@ func (_self *Wallet) FetchMintInfo() (*MintInfo, error) {
 func (_self *Wallet) FetchMintQuote(quoteId string, paymentMethod *PaymentMethod) (MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6090,7 +6150,7 @@ func (_self *Wallet) FetchMintQuote(quoteId string, paymentMethod *PaymentMethod
 func (_self *Wallet) GetActiveKeyset() (KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6126,7 +6186,7 @@ func (_self *Wallet) GetActiveKeyset() (KeySetInfo, error) {
 func (_self *Wallet) GetKeysetCountFee(keysetId string, count uint64) (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6162,7 +6222,7 @@ func (_self *Wallet) GetKeysetCountFee(keysetId string, count uint64) (Amount, e
 func (_self *Wallet) GetKeysetFeesAndAmounts() (map[string]FeeAndAmounts, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6198,7 +6258,7 @@ func (_self *Wallet) GetKeysetFeesAndAmounts() (map[string]FeeAndAmounts, error)
 func (_self *Wallet) GetKeysetFeesAndAmountsById(keysetId string) (FeeAndAmounts, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6234,7 +6294,7 @@ func (_self *Wallet) GetKeysetFeesAndAmountsById(keysetId string) (FeeAndAmounts
 func (_self *Wallet) GetKeysetFeesById(keysetId string) (uint64, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
@@ -6268,7 +6328,7 @@ func (_self *Wallet) GetKeysetFeesById(keysetId string) (uint64, error) {
 func (_self *Wallet) GetMintKeysets(filter KeysetFilter) ([]KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6304,7 +6364,7 @@ func (_self *Wallet) GetMintKeysets(filter KeysetFilter) ([]KeySetInfo, error) {
 func (_self *Wallet) GetPendingSends() ([]string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6340,7 +6400,7 @@ func (_self *Wallet) GetPendingSends() ([]string, error) {
 func (_self *Wallet) GetProofsByStates(states []ProofState) ([]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6379,7 +6439,7 @@ func (_self *Wallet) GetProofsByStates(states []ProofState) ([]Proof, error) {
 func (_self *Wallet) GetProofsForTransaction(id TransactionId) ([]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6415,7 +6475,7 @@ func (_self *Wallet) GetProofsForTransaction(id TransactionId) ([]Proof, error) 
 func (_self *Wallet) GetTransaction(id TransactionId) (*Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6451,7 +6511,7 @@ func (_self *Wallet) GetTransaction(id TransactionId) (*Transaction, error) {
 func (_self *Wallet) GetUnspentAuthProofs() ([]AuthProof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6487,7 +6547,7 @@ func (_self *Wallet) GetUnspentAuthProofs() ([]AuthProof, error) {
 func (_self *Wallet) ListTransactions(direction *TransactionDirection) ([]Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6523,7 +6583,7 @@ func (_self *Wallet) ListTransactions(direction *TransactionDirection) ([]Transa
 func (_self *Wallet) LoadKeysetKeys(keysetId string) (Keys, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6561,7 +6621,7 @@ func (_self *Wallet) LoadKeysetKeys(keysetId string) (Keys, error) {
 func (_self *Wallet) LoadMintInfo() (MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6597,7 +6657,7 @@ func (_self *Wallet) LoadMintInfo() (MintInfo, error) {
 func (_self *Wallet) LoadMintKeysets() ([]KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6639,7 +6699,7 @@ func (_self *Wallet) LoadMintKeysets() ([]KeySetInfo, error) {
 func (_self *Wallet) MeltBip353Quote(bip353Address string, amountMsat Amount, network BitcoinNetwork) (MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6686,7 +6746,7 @@ func (_self *Wallet) MeltBip353Quote(bip353Address string, amountMsat Amount, ne
 func (_self *Wallet) MeltHumanReadable(address string, amountMsat Amount, network BitcoinNetwork) (MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6726,7 +6786,7 @@ func (_self *Wallet) MeltHumanReadable(address string, amountMsat Amount, networ
 func (_self *Wallet) MeltHumanReadableQuote(address string, amountMsat Amount, network BitcoinNetwork) (MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6765,7 +6825,7 @@ func (_self *Wallet) MeltHumanReadableQuote(address string, amountMsat Amount, n
 func (_self *Wallet) MeltLightningAddressQuote(lightningAddress string, amountMsat Amount) (MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6811,7 +6871,7 @@ func (_self *Wallet) MeltLightningAddressQuote(lightningAddress string, amountMs
 func (_self *Wallet) MeltQuote(method PaymentMethod, request string, options *MeltOptions, extra *string) (MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6847,7 +6907,7 @@ func (_self *Wallet) MeltQuote(method PaymentMethod, request string, options *Me
 func (_self *Wallet) Mint(quoteId string, amountSplitTarget SplitTarget, spendingConditions *SpendingConditions) ([]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6883,7 +6943,7 @@ func (_self *Wallet) Mint(quoteId string, amountSplitTarget SplitTarget, spendin
 func (_self *Wallet) MintBlindAuth(amount Amount) ([]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6919,7 +6979,7 @@ func (_self *Wallet) MintBlindAuth(amount Amount) ([]Proof, error) {
 func (_self *Wallet) MintQuote(paymentMethod PaymentMethod, amount *Amount, description *string, extra *string) (MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -6954,7 +7014,7 @@ func (_self *Wallet) MintQuote(paymentMethod PaymentMethod, amount *Amount, desc
 func (_self *Wallet) MintUnified(quoteId string, amountSplitTarget SplitTarget, spendingConditions *SpendingConditions) ([]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7010,7 +7070,7 @@ func (_self *Wallet) MintUrl() MintUrl {
 func (_self *Wallet) PayRequest(paymentRequest *PaymentRequest, customAmount *Amount) error {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -7044,26 +7104,26 @@ func (_self *Wallet) PayRequest(paymentRequest *PaymentRequest, customAmount *Am
 func (_self *Wallet) PrepareMelt(quoteId string) (*PreparedMelt, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
-			res := C.ffi_cdk_ffi_rust_future_complete_pointer(handle, status)
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
 			return res
 		},
 		// liftFn
-		func(ffi unsafe.Pointer) *PreparedMelt {
+		func(ffi C.uint64_t) *PreparedMelt {
 			return FfiConverterPreparedMeltINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_prepare_melt(
 			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_pointer(handle, continuation, data)
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
 		},
 		// freeFn
 		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_pointer(handle)
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
 		},
 	)
 
@@ -7091,26 +7151,26 @@ func (_self *Wallet) PrepareMelt(quoteId string) (*PreparedMelt, error) {
 func (_self *Wallet) PrepareMeltProofs(quoteId string, proofs []Proof) (*PreparedMelt, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
-			res := C.ffi_cdk_ffi_rust_future_complete_pointer(handle, status)
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
 			return res
 		},
 		// liftFn
-		func(ffi unsafe.Pointer) *PreparedMelt {
+		func(ffi C.uint64_t) *PreparedMelt {
 			return FfiConverterPreparedMeltINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_prepare_melt_proofs(
 			_pointer, FfiConverterStringINSTANCE.Lower(quoteId), FfiConverterSequenceProofINSTANCE.Lower(proofs)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_pointer(handle, continuation, data)
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
 		},
 		// freeFn
 		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_pointer(handle)
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
 		},
 	)
 
@@ -7125,26 +7185,26 @@ func (_self *Wallet) PrepareMeltProofs(quoteId string, proofs []Proof) (*Prepare
 func (_self *Wallet) PrepareSend(amount Amount, options SendOptions) (*PreparedSend, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
-			res := C.ffi_cdk_ffi_rust_future_complete_pointer(handle, status)
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
 			return res
 		},
 		// liftFn
-		func(ffi unsafe.Pointer) *PreparedSend {
+		func(ffi C.uint64_t) *PreparedSend {
 			return FfiConverterPreparedSendINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_prepare_send(
 			_pointer, FfiConverterAmountINSTANCE.Lower(amount), FfiConverterSendOptionsINSTANCE.Lower(options)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_pointer(handle, continuation, data)
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
 		},
 		// freeFn
 		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_pointer(handle)
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
 		},
 	)
 
@@ -7159,7 +7219,7 @@ func (_self *Wallet) PrepareSend(amount Amount, options SendOptions) (*PreparedS
 func (_self *Wallet) Receive(token *Token, options ReceiveOptions) (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7195,7 +7255,7 @@ func (_self *Wallet) Receive(token *Token, options ReceiveOptions) (Amount, erro
 func (_self *Wallet) ReceiveProofs(proofs []Proof, options ReceiveOptions, memo *string, token *string) (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7231,7 +7291,7 @@ func (_self *Wallet) ReceiveProofs(proofs []Proof, options ReceiveOptions, memo 
 func (_self *Wallet) RefreshAccessToken() error {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -7263,7 +7323,7 @@ func (_self *Wallet) RefreshAccessToken() error {
 func (_self *Wallet) RefreshKeysets() ([]KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7299,7 +7359,7 @@ func (_self *Wallet) RefreshKeysets() ([]KeySetInfo, error) {
 func (_self *Wallet) Restore() (Restored, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7335,7 +7395,7 @@ func (_self *Wallet) Restore() (Restored, error) {
 func (_self *Wallet) RevertTransaction(id TransactionId) error {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -7367,7 +7427,7 @@ func (_self *Wallet) RevertTransaction(id TransactionId) error {
 func (_self *Wallet) RevokeSend(operationId string) (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7403,7 +7463,7 @@ func (_self *Wallet) RevokeSend(operationId string) (Amount, error) {
 func (_self *Wallet) SetCat(cat string) error {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -7463,7 +7523,7 @@ func (_self *Wallet) SetMetadataCacheTtl(ttlSecs *uint64) {
 func (_self *Wallet) SetRefreshToken(refreshToken string) error {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -7495,26 +7555,26 @@ func (_self *Wallet) SetRefreshToken(refreshToken string) error {
 func (_self *Wallet) Subscribe(params SubscribeParams) (*ActiveSubscription, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
-			res := C.ffi_cdk_ffi_rust_future_complete_pointer(handle, status)
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
 			return res
 		},
 		// liftFn
-		func(ffi unsafe.Pointer) *ActiveSubscription {
+		func(ffi C.uint64_t) *ActiveSubscription {
 			return FfiConverterActiveSubscriptionINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_subscribe(
 			_pointer, FfiConverterSubscribeParamsINSTANCE.Lower(params)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_pointer(handle, continuation, data)
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
 		},
 		// freeFn
 		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_pointer(handle)
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
 		},
 	)
 
@@ -7541,26 +7601,26 @@ func (_self *Wallet) Subscribe(params SubscribeParams) (*ActiveSubscription, err
 func (_self *Wallet) SubscribeMintQuoteState(quoteIds []string, paymentMethod PaymentMethod) (*ActiveSubscription, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
-			res := C.ffi_cdk_ffi_rust_future_complete_pointer(handle, status)
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
 			return res
 		},
 		// liftFn
-		func(ffi unsafe.Pointer) *ActiveSubscription {
+		func(ffi C.uint64_t) *ActiveSubscription {
 			return FfiConverterActiveSubscriptionINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_subscribe_mint_quote_state(
 			_pointer, FfiConverterSequenceStringINSTANCE.Lower(quoteIds), FfiConverterPaymentMethodINSTANCE.Lower(paymentMethod)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_pointer(handle, continuation, data)
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
 		},
 		// freeFn
 		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_pointer(handle)
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
 		},
 	)
 
@@ -7575,7 +7635,7 @@ func (_self *Wallet) SubscribeMintQuoteState(quoteIds []string, paymentMethod Pa
 func (_self *Wallet) Swap(amount *Amount, amountSplitTarget SplitTarget, inputProofs []Proof, spendingConditions *SpendingConditions, includeFees bool) (*[]Proof, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7611,7 +7671,7 @@ func (_self *Wallet) Swap(amount *Amount, amountSplitTarget SplitTarget, inputPr
 func (_self *Wallet) TotalBalance() (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7647,7 +7707,7 @@ func (_self *Wallet) TotalBalance() (Amount, error) {
 func (_self *Wallet) TotalPendingBalance() (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7683,7 +7743,7 @@ func (_self *Wallet) TotalPendingBalance() (Amount, error) {
 func (_self *Wallet) TotalReservedBalance() (Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7731,7 +7791,7 @@ func (_self *Wallet) Unit() CurrencyUnit {
 func (_self *Wallet) VerifyTokenDleq(token *Token) error {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -7767,15 +7827,15 @@ type FfiConverterWallet struct{}
 
 var FfiConverterWalletINSTANCE = FfiConverterWallet{}
 
-func (c FfiConverterWallet) Lift(pointer unsafe.Pointer) *Wallet {
+func (c FfiConverterWallet) Lift(handle C.uint64_t) *Wallet {
 	result := &Wallet{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_wallet(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_wallet(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_wallet(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_wallet(handle, status)
 			},
 		),
 	}
@@ -7784,21 +7844,28 @@ func (c FfiConverterWallet) Lift(pointer unsafe.Pointer) *Wallet {
 }
 
 func (c FfiConverterWallet) Read(reader io.Reader) *Wallet {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterWallet) Lower(value *Wallet) unsafe.Pointer {
+func (c FfiConverterWallet) Lower(value *Wallet) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*Wallet")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*Wallet")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterWallet) Write(writer io.Writer, value *Wallet) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalWallet(handle uint64) *Wallet {
+	return FfiConverterWalletINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalWallet(value *Wallet) uint64 {
+	return uint64(FfiConverterWalletINSTANCE.Lower(value))
 }
 
 type FfiDestroyerWallet struct{}
@@ -7926,7 +7993,7 @@ type WalletDatabaseImpl struct {
 func (_self *WalletDatabaseImpl) GetMint(mintUrl MintUrl) (*MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7962,7 +8029,7 @@ func (_self *WalletDatabaseImpl) GetMint(mintUrl MintUrl) (*MintInfo, error) {
 func (_self *WalletDatabaseImpl) GetMints() (map[MintUrl]*MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -7998,7 +8065,7 @@ func (_self *WalletDatabaseImpl) GetMints() (map[MintUrl]*MintInfo, error) {
 func (_self *WalletDatabaseImpl) GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8034,7 +8101,7 @@ func (_self *WalletDatabaseImpl) GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo,
 func (_self *WalletDatabaseImpl) GetKeysetById(keysetId Id) (*KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8070,7 +8137,7 @@ func (_self *WalletDatabaseImpl) GetKeysetById(keysetId Id) (*KeySetInfo, error)
 func (_self *WalletDatabaseImpl) GetMintQuote(quoteId string) (*MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8106,7 +8173,7 @@ func (_self *WalletDatabaseImpl) GetMintQuote(quoteId string) (*MintQuote, error
 func (_self *WalletDatabaseImpl) GetMintQuotes() ([]MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8143,7 +8210,7 @@ func (_self *WalletDatabaseImpl) GetMintQuotes() ([]MintQuote, error) {
 func (_self *WalletDatabaseImpl) GetUnissuedMintQuotes() ([]MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8179,7 +8246,7 @@ func (_self *WalletDatabaseImpl) GetUnissuedMintQuotes() ([]MintQuote, error) {
 func (_self *WalletDatabaseImpl) GetMeltQuote(quoteId string) (*MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8215,7 +8282,7 @@ func (_self *WalletDatabaseImpl) GetMeltQuote(quoteId string) (*MeltQuote, error
 func (_self *WalletDatabaseImpl) GetMeltQuotes() ([]MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8251,7 +8318,7 @@ func (_self *WalletDatabaseImpl) GetMeltQuotes() ([]MeltQuote, error) {
 func (_self *WalletDatabaseImpl) GetKeys(id Id) (*Keys, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8287,7 +8354,7 @@ func (_self *WalletDatabaseImpl) GetKeys(id Id) (*Keys, error) {
 func (_self *WalletDatabaseImpl) GetProofs(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState, spendingConditions *[]SpendingConditions) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8323,7 +8390,7 @@ func (_self *WalletDatabaseImpl) GetProofs(mintUrl *MintUrl, unit *CurrencyUnit,
 func (_self *WalletDatabaseImpl) GetProofsByYs(ys []PublicKey) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8359,7 +8426,7 @@ func (_self *WalletDatabaseImpl) GetProofsByYs(ys []PublicKey) ([]ProofInfo, err
 func (_self *WalletDatabaseImpl) GetBalance(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState) (uint64, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
@@ -8393,7 +8460,7 @@ func (_self *WalletDatabaseImpl) GetBalance(mintUrl *MintUrl, unit *CurrencyUnit
 func (_self *WalletDatabaseImpl) GetTransaction(transactionId TransactionId) (*Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8429,7 +8496,7 @@ func (_self *WalletDatabaseImpl) GetTransaction(transactionId TransactionId) (*T
 func (_self *WalletDatabaseImpl) ListTransactions(mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) ([]Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8465,7 +8532,7 @@ func (_self *WalletDatabaseImpl) ListTransactions(mintUrl *MintUrl, direction *T
 func (_self *WalletDatabaseImpl) KvRead(primaryNamespace string, secondaryNamespace string, key string) (*[]byte, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8501,7 +8568,7 @@ func (_self *WalletDatabaseImpl) KvRead(primaryNamespace string, secondaryNamesp
 func (_self *WalletDatabaseImpl) KvList(primaryNamespace string, secondaryNamespace string) ([]string, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8537,7 +8604,7 @@ func (_self *WalletDatabaseImpl) KvList(primaryNamespace string, secondaryNamesp
 func (_self *WalletDatabaseImpl) AddP2pkKey(pubkey PublicKey, derivationPath string, derivationIndex uint32) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8569,7 +8636,7 @@ func (_self *WalletDatabaseImpl) AddP2pkKey(pubkey PublicKey, derivationPath str
 func (_self *WalletDatabaseImpl) GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8605,7 +8672,7 @@ func (_self *WalletDatabaseImpl) GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, 
 func (_self *WalletDatabaseImpl) ListP2pkKeys() ([]P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8641,7 +8708,7 @@ func (_self *WalletDatabaseImpl) ListP2pkKeys() ([]P2pkSigningKey, error) {
 func (_self *WalletDatabaseImpl) LatestP2pk() (*P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -8677,7 +8744,7 @@ func (_self *WalletDatabaseImpl) LatestP2pk() (*P2pkSigningKey, error) {
 func (_self *WalletDatabaseImpl) KvWrite(primaryNamespace string, secondaryNamespace string, key string, value []byte) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8709,7 +8776,7 @@ func (_self *WalletDatabaseImpl) KvWrite(primaryNamespace string, secondaryNames
 func (_self *WalletDatabaseImpl) KvRemove(primaryNamespace string, secondaryNamespace string, key string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8741,7 +8808,7 @@ func (_self *WalletDatabaseImpl) KvRemove(primaryNamespace string, secondaryName
 func (_self *WalletDatabaseImpl) UpdateProofs(added []ProofInfo, removedYs []PublicKey) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8773,7 +8840,7 @@ func (_self *WalletDatabaseImpl) UpdateProofs(added []ProofInfo, removedYs []Pub
 func (_self *WalletDatabaseImpl) UpdateProofsState(ys []PublicKey, state ProofState) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8805,7 +8872,7 @@ func (_self *WalletDatabaseImpl) UpdateProofsState(ys []PublicKey, state ProofSt
 func (_self *WalletDatabaseImpl) AddTransaction(transaction Transaction) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8837,7 +8904,7 @@ func (_self *WalletDatabaseImpl) AddTransaction(transaction Transaction) error {
 func (_self *WalletDatabaseImpl) RemoveTransaction(transactionId TransactionId) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8869,7 +8936,7 @@ func (_self *WalletDatabaseImpl) RemoveTransaction(transactionId TransactionId) 
 func (_self *WalletDatabaseImpl) UpdateMintUrl(oldMintUrl MintUrl, newMintUrl MintUrl) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8901,7 +8968,7 @@ func (_self *WalletDatabaseImpl) UpdateMintUrl(oldMintUrl MintUrl, newMintUrl Mi
 func (_self *WalletDatabaseImpl) IncrementKeysetCounter(keysetId Id, count uint32) (uint32, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.uint32_t {
@@ -8935,7 +9002,7 @@ func (_self *WalletDatabaseImpl) IncrementKeysetCounter(keysetId Id, count uint3
 func (_self *WalletDatabaseImpl) AddMint(mintUrl MintUrl, mintInfo *MintInfo) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8967,7 +9034,7 @@ func (_self *WalletDatabaseImpl) AddMint(mintUrl MintUrl, mintInfo *MintInfo) er
 func (_self *WalletDatabaseImpl) RemoveMint(mintUrl MintUrl) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -8999,7 +9066,7 @@ func (_self *WalletDatabaseImpl) RemoveMint(mintUrl MintUrl) error {
 func (_self *WalletDatabaseImpl) AddMintKeysets(mintUrl MintUrl, keysets []KeySetInfo) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9031,7 +9098,7 @@ func (_self *WalletDatabaseImpl) AddMintKeysets(mintUrl MintUrl, keysets []KeySe
 func (_self *WalletDatabaseImpl) AddMintQuote(quote MintQuote) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9063,7 +9130,7 @@ func (_self *WalletDatabaseImpl) AddMintQuote(quote MintQuote) error {
 func (_self *WalletDatabaseImpl) RemoveMintQuote(quoteId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9095,7 +9162,7 @@ func (_self *WalletDatabaseImpl) RemoveMintQuote(quoteId string) error {
 func (_self *WalletDatabaseImpl) AddMeltQuote(quote MeltQuote) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9127,7 +9194,7 @@ func (_self *WalletDatabaseImpl) AddMeltQuote(quote MeltQuote) error {
 func (_self *WalletDatabaseImpl) RemoveMeltQuote(quoteId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9159,7 +9226,7 @@ func (_self *WalletDatabaseImpl) RemoveMeltQuote(quoteId string) error {
 func (_self *WalletDatabaseImpl) AddKeys(keyset KeySet) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9191,7 +9258,7 @@ func (_self *WalletDatabaseImpl) AddKeys(keyset KeySet) error {
 func (_self *WalletDatabaseImpl) RemoveKeys(id Id) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9223,7 +9290,7 @@ func (_self *WalletDatabaseImpl) RemoveKeys(id Id) error {
 func (_self *WalletDatabaseImpl) AddSaga(sagaJson string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9255,7 +9322,7 @@ func (_self *WalletDatabaseImpl) AddSaga(sagaJson string) error {
 func (_self *WalletDatabaseImpl) GetSaga(id string) (*string, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -9294,7 +9361,7 @@ func (_self *WalletDatabaseImpl) GetSaga(id string) (*string, error) {
 func (_self *WalletDatabaseImpl) UpdateSaga(sagaJson string) (bool, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.int8_t {
@@ -9328,7 +9395,7 @@ func (_self *WalletDatabaseImpl) UpdateSaga(sagaJson string) (bool, error) {
 func (_self *WalletDatabaseImpl) DeleteSaga(id string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9360,7 +9427,7 @@ func (_self *WalletDatabaseImpl) DeleteSaga(id string) error {
 func (_self *WalletDatabaseImpl) GetIncompleteSagas() ([]string, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -9396,7 +9463,7 @@ func (_self *WalletDatabaseImpl) GetIncompleteSagas() ([]string, error) {
 func (_self *WalletDatabaseImpl) ReserveProofs(ys []PublicKey, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9428,7 +9495,7 @@ func (_self *WalletDatabaseImpl) ReserveProofs(ys []PublicKey, operationId strin
 func (_self *WalletDatabaseImpl) ReleaseProofs(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9460,7 +9527,7 @@ func (_self *WalletDatabaseImpl) ReleaseProofs(operationId string) error {
 func (_self *WalletDatabaseImpl) GetReservedProofs(operationId string) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -9496,7 +9563,7 @@ func (_self *WalletDatabaseImpl) GetReservedProofs(operationId string) ([]ProofI
 func (_self *WalletDatabaseImpl) ReserveMeltQuote(quoteId string, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9528,7 +9595,7 @@ func (_self *WalletDatabaseImpl) ReserveMeltQuote(quoteId string, operationId st
 func (_self *WalletDatabaseImpl) ReleaseMeltQuote(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9560,7 +9627,7 @@ func (_self *WalletDatabaseImpl) ReleaseMeltQuote(operationId string) error {
 func (_self *WalletDatabaseImpl) ReserveMintQuote(quoteId string, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9592,7 +9659,7 @@ func (_self *WalletDatabaseImpl) ReserveMintQuote(quoteId string, operationId st
 func (_self *WalletDatabaseImpl) ReleaseMintQuote(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("WalletDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -9632,37 +9699,62 @@ var FfiConverterWalletDatabaseINSTANCE = FfiConverterWalletDatabase{
 	handleMap: newConcurrentHandleMap[WalletDatabase](),
 }
 
-func (c FfiConverterWalletDatabase) Lift(pointer unsafe.Pointer) WalletDatabase {
-	result := &WalletDatabaseImpl{
-		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_walletdatabase(pointer, status)
-			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_walletdatabase(pointer, status)
-			},
-		),
+func (c FfiConverterWalletDatabase) Lift(handle C.uint64_t) WalletDatabase {
+	if uint64(handle)&1 == 0 {
+		// Rust-generated handle (even), construct a new object wrapping the handle
+		result := &WalletDatabaseImpl{
+			newFfiObject(
+				handle,
+				func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+					return C.uniffi_cdk_ffi_fn_clone_walletdatabase(handle, status)
+				},
+				func(handle C.uint64_t, status *C.RustCallStatus) {
+					C.uniffi_cdk_ffi_fn_free_walletdatabase(handle, status)
+				},
+			),
+		}
+		runtime.SetFinalizer(result, (*WalletDatabaseImpl).Destroy)
+		return result
+	} else {
+		// Go-generated handle (odd), retrieve from the handle map
+		val, ok := c.handleMap.tryGet(uint64(handle))
+		if !ok {
+			panic(fmt.Errorf("no callback in handle map: %d", handle))
+		}
+		c.handleMap.remove(uint64(handle))
+		return val
 	}
-	runtime.SetFinalizer(result, (*WalletDatabaseImpl).Destroy)
-	return result
 }
 
 func (c FfiConverterWalletDatabase) Read(reader io.Reader) WalletDatabase {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterWalletDatabase) Lower(value WalletDatabase) unsafe.Pointer {
+func (c FfiConverterWalletDatabase) Lower(value WalletDatabase) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := unsafe.Pointer(uintptr(c.handleMap.insert(value)))
-	return pointer
-
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	if val, ok := value.(*WalletDatabaseImpl); ok {
+		// Rust-backed object, clone the handle
+		handle := val.ffiObject.incrementPointer("WalletDatabase")
+		defer val.ffiObject.decrementPointer()
+		return handle
+	} else {
+		// Go-backed object, insert into handle map
+		return C.uint64_t(c.handleMap.insert(value))
+	}
 }
 
 func (c FfiConverterWalletDatabase) Write(writer io.Writer, value WalletDatabase) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalWalletDatabase(handle uint64) WalletDatabase {
+	return FfiConverterWalletDatabaseINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalWalletDatabase(value WalletDatabase) uint64 {
+	return uint64(FfiConverterWalletDatabaseINSTANCE.Lower(value))
 }
 
 type FfiDestroyerWalletDatabase struct{}
@@ -9670,8 +9762,6 @@ type FfiDestroyerWalletDatabase struct{}
 func (_ FfiDestroyerWalletDatabase) Destroy(value WalletDatabase) {
 	if val, ok := value.(*WalletDatabaseImpl); ok {
 		val.Destroy()
-	} else {
-		panic("Expected *WalletDatabaseImpl")
 	}
 }
 
@@ -9693,7 +9783,8 @@ type concurrentHandleMap[T any] struct {
 
 func newConcurrentHandleMap[T any]() *concurrentHandleMap[T] {
 	return &concurrentHandleMap[T]{
-		handles: map[uint64]T{},
+		handles:       map[uint64]T{},
+		currentHandle: 1,
 	}
 }
 
@@ -9701,9 +9792,10 @@ func (cm *concurrentHandleMap[T]) insert(obj T) uint64 {
 	cm.lock.Lock()
 	defer cm.lock.Unlock()
 
-	cm.currentHandle = cm.currentHandle + 1
-	cm.handles[cm.currentHandle] = obj
-	return cm.currentHandle
+	handle := cm.currentHandle
+	cm.currentHandle = cm.currentHandle + 2
+	cm.handles[handle] = obj
+	return handle
 }
 
 func (cm *concurrentHandleMap[T]) remove(handle uint64) {
@@ -9722,19 +9814,19 @@ func (cm *concurrentHandleMap[T]) tryGet(handle uint64) (T, bool) {
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod0
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod0(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod0(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -9748,7 +9840,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod0(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -9782,19 +9874,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod0(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod1
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod1(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod1(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -9808,7 +9900,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod1(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -9838,19 +9930,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod1(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod2
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod2(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod2(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -9864,7 +9956,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod2(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -9898,19 +9990,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod2(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod3
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod3(uniffiHandle C.uint64_t, keysetId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod3(uniffiHandle C.uint64_t, keysetId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -9924,7 +10016,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod3(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -9958,19 +10050,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod3(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod4
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod4(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod4(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -9984,7 +10076,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod4(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10018,19 +10110,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod4(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod5
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod5(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod5(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10044,7 +10136,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod5(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10074,19 +10166,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod5(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod6
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod6(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod6(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10100,7 +10192,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod6(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10130,19 +10222,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod6(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod7
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod7(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod7(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10156,7 +10248,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod7(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10190,19 +10282,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod7(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod8
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod8(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod8(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10216,7 +10308,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod8(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10246,19 +10338,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod8(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod9
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod9(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod9(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10272,7 +10364,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod9(uniffiHandle C.u
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10306,19 +10398,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod9(uniffiHandle C.u
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod10
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod10(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, unit C.RustBuffer, state C.RustBuffer, spendingConditions C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod10(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, unit C.RustBuffer, state C.RustBuffer, spendingConditions C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10332,7 +10424,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod10(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10375,19 +10467,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod10(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod11
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod11(uniffiHandle C.uint64_t, ys C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod11(uniffiHandle C.uint64_t, ys C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10401,7 +10493,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod11(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10435,19 +10527,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod11(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod12
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod12(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, unit C.RustBuffer, state C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteU64, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod12(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, unit C.RustBuffer, state C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteU64, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructU64, 1)
+	result := make(chan C.UniffiForeignFutureResultU64, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10461,7 +10553,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod12(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructU64{}
+		asyncResult := &C.UniffiForeignFutureResultU64{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10501,19 +10593,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod12(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod13
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod13(uniffiHandle C.uint64_t, transactionId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod13(uniffiHandle C.uint64_t, transactionId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10527,7 +10619,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod13(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10561,19 +10653,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod13(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod14
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod14(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, direction C.RustBuffer, unit C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod14(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, direction C.RustBuffer, unit C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10587,7 +10679,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod14(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10627,19 +10719,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod14(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod15
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod15(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, key C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod15(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, key C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10653,7 +10745,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod15(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10693,19 +10785,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod15(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod16
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod16(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod16(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10719,7 +10811,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod16(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10756,19 +10848,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod16(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod17
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod17(uniffiHandle C.uint64_t, pubkey C.RustBuffer, derivationPath C.RustBuffer, derivationIndex C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod17(uniffiHandle C.uint64_t, pubkey C.RustBuffer, derivationPath C.RustBuffer, derivationIndex C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10782,7 +10874,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod17(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -10818,19 +10910,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod17(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod18
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod18(uniffiHandle C.uint64_t, pubkey C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod18(uniffiHandle C.uint64_t, pubkey C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10844,7 +10936,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod18(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10878,19 +10970,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod18(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod19
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod19(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod19(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10904,7 +10996,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod19(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10934,19 +11026,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod19(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod20
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod20(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod20(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -10960,7 +11052,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod20(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -10990,19 +11082,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod20(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod21
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod21(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, key C.RustBuffer, value C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod21(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, key C.RustBuffer, value C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11016,7 +11108,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod21(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11057,19 +11149,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod21(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod22
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod22(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, key C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod22(uniffiHandle C.uint64_t, primaryNamespace C.RustBuffer, secondaryNamespace C.RustBuffer, key C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11083,7 +11175,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod22(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11121,19 +11213,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod22(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod23
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod23(uniffiHandle C.uint64_t, added C.RustBuffer, removedYs C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod23(uniffiHandle C.uint64_t, added C.RustBuffer, removedYs C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11147,7 +11239,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod23(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11182,19 +11274,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod23(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod24
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod24(uniffiHandle C.uint64_t, ys C.RustBuffer, state C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod24(uniffiHandle C.uint64_t, ys C.RustBuffer, state C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11208,7 +11300,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod24(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11243,19 +11335,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod24(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod25
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod25(uniffiHandle C.uint64_t, transaction C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod25(uniffiHandle C.uint64_t, transaction C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11269,7 +11361,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod25(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11301,19 +11393,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod25(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod26
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod26(uniffiHandle C.uint64_t, transactionId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod26(uniffiHandle C.uint64_t, transactionId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11327,7 +11419,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod26(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11359,19 +11451,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod26(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod27
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod27(uniffiHandle C.uint64_t, oldMintUrl C.RustBuffer, newMintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod27(uniffiHandle C.uint64_t, oldMintUrl C.RustBuffer, newMintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11385,7 +11477,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod27(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11420,19 +11512,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod27(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod28
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod28(uniffiHandle C.uint64_t, keysetId C.RustBuffer, count C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteU32, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod28(uniffiHandle C.uint64_t, keysetId C.RustBuffer, count C.uint32_t, uniffiFutureCallback C.UniffiForeignFutureCompleteU32, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructU32, 1)
+	result := make(chan C.UniffiForeignFutureResultU32, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11446,7 +11538,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod28(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructU32{}
+		asyncResult := &C.UniffiForeignFutureResultU32{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -11481,19 +11573,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod28(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod29
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod29(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, mintInfo C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod29(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, mintInfo C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11507,7 +11599,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod29(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11542,19 +11634,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod29(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod30
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod30(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod30(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11568,7 +11660,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod30(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11600,19 +11692,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod30(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod31
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod31(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, keysets C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod31(uniffiHandle C.uint64_t, mintUrl C.RustBuffer, keysets C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11626,7 +11718,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod31(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11661,19 +11753,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod31(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod32
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod32(uniffiHandle C.uint64_t, quote C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod32(uniffiHandle C.uint64_t, quote C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11687,7 +11779,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod32(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11719,19 +11811,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod32(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod33
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod33(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod33(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11745,7 +11837,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod33(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11777,19 +11869,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod33(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod34
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod34(uniffiHandle C.uint64_t, quote C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod34(uniffiHandle C.uint64_t, quote C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11803,7 +11895,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod34(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11835,19 +11927,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod34(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod35
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod35(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod35(uniffiHandle C.uint64_t, quoteId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11861,7 +11953,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod35(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11893,19 +11985,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod35(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod36
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod36(uniffiHandle C.uint64_t, keyset C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod36(uniffiHandle C.uint64_t, keyset C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11919,7 +12011,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod36(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -11951,19 +12043,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod36(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod37
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod37(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod37(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -11977,7 +12069,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod37(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12009,19 +12101,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod37(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod38
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod38(uniffiHandle C.uint64_t, sagaJson C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod38(uniffiHandle C.uint64_t, sagaJson C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12035,7 +12127,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod38(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12067,19 +12159,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod38(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod39
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod39(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod39(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12093,7 +12185,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod39(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -12127,19 +12219,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod39(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod40
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod40(uniffiHandle C.uint64_t, sagaJson C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteI8, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod40(uniffiHandle C.uint64_t, sagaJson C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteI8, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructI8, 1)
+	result := make(chan C.UniffiForeignFutureResultI8, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12153,7 +12245,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod40(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructI8{}
+		asyncResult := &C.UniffiForeignFutureResultI8{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -12187,19 +12279,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod40(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod41
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod41(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod41(uniffiHandle C.uint64_t, id C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12213,7 +12305,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod41(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12245,19 +12337,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod41(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod42
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod42(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod42(uniffiHandle C.uint64_t, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12271,7 +12363,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod42(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -12301,19 +12393,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod42(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod43
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod43(uniffiHandle C.uint64_t, ys C.RustBuffer, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod43(uniffiHandle C.uint64_t, ys C.RustBuffer, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12327,7 +12419,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod43(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12362,19 +12454,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod43(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod44
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod44(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod44(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12388,7 +12480,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod44(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12420,19 +12512,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod44(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod45
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod45(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod45(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteRustBuffer, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructRustBuffer, 1)
+	result := make(chan C.UniffiForeignFutureResultRustBuffer, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12446,7 +12538,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod45(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructRustBuffer{}
+		asyncResult := &C.UniffiForeignFutureResultRustBuffer{}
 		uniffiOutReturn := &asyncResult.returnValue
 		callStatus := &asyncResult.callStatus
 		defer func() {
@@ -12480,19 +12572,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod45(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod46
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod46(uniffiHandle C.uint64_t, quoteId C.RustBuffer, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod46(uniffiHandle C.uint64_t, quoteId C.RustBuffer, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12506,7 +12598,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod46(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12541,19 +12633,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod46(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod47
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod47(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod47(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12567,7 +12659,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod47(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12599,19 +12691,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod47(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod48
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod48(uniffiHandle C.uint64_t, quoteId C.RustBuffer, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod48(uniffiHandle C.uint64_t, quoteId C.RustBuffer, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12625,7 +12717,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod48(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12660,19 +12752,19 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod48(uniffiHandle C.
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod49
-func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod49(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutReturn *C.UniffiForeignFuture) {
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod49(uniffiHandle C.uint64_t, operationId C.RustBuffer, uniffiFutureCallback C.UniffiForeignFutureCompleteVoid, uniffiCallbackData C.uint64_t, uniffiOutDroppedCallback *C.UniffiForeignFutureDroppedCallbackStruct) {
 	handle := uint64(uniffiHandle)
 	uniffiObj, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(handle)
 	if !ok {
 		panic(fmt.Errorf("no callback in handle map: %d", handle))
 	}
 
-	result := make(chan C.UniffiForeignFutureStructVoid, 1)
+	result := make(chan C.UniffiForeignFutureResultVoid, 1)
 	cancel := make(chan struct{}, 1)
 	guardHandle := cgo.NewHandle(cancel)
-	*uniffiOutReturn = C.UniffiForeignFuture{
+	*uniffiOutDroppedCallback = C.UniffiForeignFutureDroppedCallbackStruct{
 		handle: C.uint64_t(guardHandle),
-		free:   C.UniffiForeignFutureFree(C.cdkffi_uniffiFreeGorutine),
+		free:   C.UniffiForeignFutureDroppedCallback(C.cdkffi_uniffiFreeGorutine),
 	}
 
 	// Wait for compleation or cancel
@@ -12686,7 +12778,7 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod49(uniffiHandle C.
 
 	// Eval callback asynchroniously
 	go func() {
-		asyncResult := &C.UniffiForeignFutureStructVoid{}
+		asyncResult := &C.UniffiForeignFutureResultVoid{}
 		callStatus := &asyncResult.callStatus
 		defer func() {
 			result <- *asyncResult
@@ -12718,6 +12810,8 @@ func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod49(uniffiHandle C.
 }
 
 var UniffiVTableCallbackInterfaceWalletDatabaseINSTANCE = C.UniffiVTableCallbackInterfaceWalletDatabase{
+	uniffiFree:             (C.UniffiCallbackInterfaceFree)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseFree),
+	uniffiClone:            (C.UniffiCallbackInterfaceClone)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseClone),
 	getMint:                (C.UniffiCallbackInterfaceWalletDatabaseMethod0)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod0),
 	getMints:               (C.UniffiCallbackInterfaceWalletDatabaseMethod1)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod1),
 	getMintKeysets:         (C.UniffiCallbackInterfaceWalletDatabaseMethod2)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod2),
@@ -12768,13 +12862,20 @@ var UniffiVTableCallbackInterfaceWalletDatabaseINSTANCE = C.UniffiVTableCallback
 	releaseMeltQuote:       (C.UniffiCallbackInterfaceWalletDatabaseMethod47)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod47),
 	reserveMintQuote:       (C.UniffiCallbackInterfaceWalletDatabaseMethod48)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod48),
 	releaseMintQuote:       (C.UniffiCallbackInterfaceWalletDatabaseMethod49)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod49),
-
-	uniffiFree: (C.UniffiCallbackInterfaceFree)(C.cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseFree),
 }
 
 //export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseFree
 func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseFree(handle C.uint64_t) {
 	FfiConverterWalletDatabaseINSTANCE.handleMap.remove(uint64(handle))
+}
+
+//export cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseClone
+func cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseClone(handle C.uint64_t) C.uint64_t {
+	val, ok := FfiConverterWalletDatabaseINSTANCE.handleMap.tryGet(uint64(handle))
+	if !ok {
+		panic(fmt.Errorf("no callback in handle map: %d", handle))
+	}
+	return C.uint64_t(FfiConverterWalletDatabaseINSTANCE.handleMap.insert(val))
 }
 
 func (c FfiConverterWalletDatabase) register() {
@@ -12842,7 +12943,7 @@ type WalletPostgresDatabase struct {
 // Example URL:
 // "host=localhost user=test password=test dbname=testdb port=5433 schema=wallet sslmode=prefer"
 func NewWalletPostgresDatabase(url string) (*WalletPostgresDatabase, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_walletpostgresdatabase_new(FfiConverterStringINSTANCE.Lower(url), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -12856,7 +12957,7 @@ func NewWalletPostgresDatabase(url string) (*WalletPostgresDatabase, error) {
 func (_self *WalletPostgresDatabase) AddKeys(keyset KeySet) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -12887,7 +12988,7 @@ func (_self *WalletPostgresDatabase) AddKeys(keyset KeySet) error {
 func (_self *WalletPostgresDatabase) AddMeltQuote(quote MeltQuote) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -12918,7 +13019,7 @@ func (_self *WalletPostgresDatabase) AddMeltQuote(quote MeltQuote) error {
 func (_self *WalletPostgresDatabase) AddMint(mintUrl MintUrl, mintInfo *MintInfo) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -12949,7 +13050,7 @@ func (_self *WalletPostgresDatabase) AddMint(mintUrl MintUrl, mintInfo *MintInfo
 func (_self *WalletPostgresDatabase) AddMintKeysets(mintUrl MintUrl, keysets []KeySetInfo) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -12980,7 +13081,7 @@ func (_self *WalletPostgresDatabase) AddMintKeysets(mintUrl MintUrl, keysets []K
 func (_self *WalletPostgresDatabase) AddMintQuote(quote MintQuote) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -13011,7 +13112,7 @@ func (_self *WalletPostgresDatabase) AddMintQuote(quote MintQuote) error {
 func (_self *WalletPostgresDatabase) AddP2pkKey(pubkey PublicKey, derivationPath string, derivationIndex uint32) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -13042,7 +13143,7 @@ func (_self *WalletPostgresDatabase) AddP2pkKey(pubkey PublicKey, derivationPath
 func (_self *WalletPostgresDatabase) AddSaga(sagaJson string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -13073,7 +13174,7 @@ func (_self *WalletPostgresDatabase) AddSaga(sagaJson string) error {
 func (_self *WalletPostgresDatabase) AddTransaction(transaction Transaction) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -13104,7 +13205,7 @@ func (_self *WalletPostgresDatabase) AddTransaction(transaction Transaction) err
 func (_self *WalletPostgresDatabase) DeleteSaga(id string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -13135,7 +13236,7 @@ func (_self *WalletPostgresDatabase) DeleteSaga(id string) error {
 func (_self *WalletPostgresDatabase) GetBalance(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState) (uint64, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
@@ -13168,7 +13269,7 @@ func (_self *WalletPostgresDatabase) GetBalance(mintUrl *MintUrl, unit *Currency
 func (_self *WalletPostgresDatabase) GetIncompleteSagas() ([]string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13203,7 +13304,7 @@ func (_self *WalletPostgresDatabase) GetIncompleteSagas() ([]string, error) {
 func (_self *WalletPostgresDatabase) GetKeys(id Id) (*Keys, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13238,7 +13339,7 @@ func (_self *WalletPostgresDatabase) GetKeys(id Id) (*Keys, error) {
 func (_self *WalletPostgresDatabase) GetKeysetById(keysetId Id) (*KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13273,7 +13374,7 @@ func (_self *WalletPostgresDatabase) GetKeysetById(keysetId Id) (*KeySetInfo, er
 func (_self *WalletPostgresDatabase) GetMeltQuote(quoteId string) (*MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13308,7 +13409,7 @@ func (_self *WalletPostgresDatabase) GetMeltQuote(quoteId string) (*MeltQuote, e
 func (_self *WalletPostgresDatabase) GetMeltQuotes() ([]MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13343,7 +13444,7 @@ func (_self *WalletPostgresDatabase) GetMeltQuotes() ([]MeltQuote, error) {
 func (_self *WalletPostgresDatabase) GetMint(mintUrl MintUrl) (*MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13378,7 +13479,7 @@ func (_self *WalletPostgresDatabase) GetMint(mintUrl MintUrl) (*MintInfo, error)
 func (_self *WalletPostgresDatabase) GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13413,7 +13514,7 @@ func (_self *WalletPostgresDatabase) GetMintKeysets(mintUrl MintUrl) (*[]KeySetI
 func (_self *WalletPostgresDatabase) GetMintQuote(quoteId string) (*MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13448,7 +13549,7 @@ func (_self *WalletPostgresDatabase) GetMintQuote(quoteId string) (*MintQuote, e
 func (_self *WalletPostgresDatabase) GetMintQuotes() ([]MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13483,7 +13584,7 @@ func (_self *WalletPostgresDatabase) GetMintQuotes() ([]MintQuote, error) {
 func (_self *WalletPostgresDatabase) GetMints() (map[MintUrl]*MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13518,7 +13619,7 @@ func (_self *WalletPostgresDatabase) GetMints() (map[MintUrl]*MintInfo, error) {
 func (_self *WalletPostgresDatabase) GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13553,7 +13654,7 @@ func (_self *WalletPostgresDatabase) GetP2pkKey(pubkey PublicKey) (*P2pkSigningK
 func (_self *WalletPostgresDatabase) GetProofs(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState, spendingConditions *[]SpendingConditions) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13588,7 +13689,7 @@ func (_self *WalletPostgresDatabase) GetProofs(mintUrl *MintUrl, unit *CurrencyU
 func (_self *WalletPostgresDatabase) GetProofsByYs(ys []PublicKey) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13623,7 +13724,7 @@ func (_self *WalletPostgresDatabase) GetProofsByYs(ys []PublicKey) ([]ProofInfo,
 func (_self *WalletPostgresDatabase) GetReservedProofs(operationId string) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13658,7 +13759,7 @@ func (_self *WalletPostgresDatabase) GetReservedProofs(operationId string) ([]Pr
 func (_self *WalletPostgresDatabase) GetSaga(id string) (*string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13693,7 +13794,7 @@ func (_self *WalletPostgresDatabase) GetSaga(id string) (*string, error) {
 func (_self *WalletPostgresDatabase) GetTransaction(transactionId TransactionId) (*Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13728,7 +13829,7 @@ func (_self *WalletPostgresDatabase) GetTransaction(transactionId TransactionId)
 func (_self *WalletPostgresDatabase) GetUnissuedMintQuotes() ([]MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13763,7 +13864,7 @@ func (_self *WalletPostgresDatabase) GetUnissuedMintQuotes() ([]MintQuote, error
 func (_self *WalletPostgresDatabase) IncrementKeysetCounter(keysetId Id, count uint32) (uint32, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.uint32_t {
@@ -13796,7 +13897,7 @@ func (_self *WalletPostgresDatabase) IncrementKeysetCounter(keysetId Id, count u
 func (_self *WalletPostgresDatabase) KvList(primaryNamespace string, secondaryNamespace string) ([]string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13831,7 +13932,7 @@ func (_self *WalletPostgresDatabase) KvList(primaryNamespace string, secondaryNa
 func (_self *WalletPostgresDatabase) KvRead(primaryNamespace string, secondaryNamespace string, key string) (*[]byte, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13866,7 +13967,7 @@ func (_self *WalletPostgresDatabase) KvRead(primaryNamespace string, secondaryNa
 func (_self *WalletPostgresDatabase) KvRemove(primaryNamespace string, secondaryNamespace string, key string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -13897,7 +13998,7 @@ func (_self *WalletPostgresDatabase) KvRemove(primaryNamespace string, secondary
 func (_self *WalletPostgresDatabase) KvWrite(primaryNamespace string, secondaryNamespace string, key string, value []byte) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -13928,7 +14029,7 @@ func (_self *WalletPostgresDatabase) KvWrite(primaryNamespace string, secondaryN
 func (_self *WalletPostgresDatabase) LatestP2pk() (*P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13963,7 +14064,7 @@ func (_self *WalletPostgresDatabase) LatestP2pk() (*P2pkSigningKey, error) {
 func (_self *WalletPostgresDatabase) ListP2pkKeys() ([]P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -13998,7 +14099,7 @@ func (_self *WalletPostgresDatabase) ListP2pkKeys() ([]P2pkSigningKey, error) {
 func (_self *WalletPostgresDatabase) ListTransactions(mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) ([]Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -14033,7 +14134,7 @@ func (_self *WalletPostgresDatabase) ListTransactions(mintUrl *MintUrl, directio
 func (_self *WalletPostgresDatabase) ReleaseMeltQuote(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14064,7 +14165,7 @@ func (_self *WalletPostgresDatabase) ReleaseMeltQuote(operationId string) error 
 func (_self *WalletPostgresDatabase) ReleaseMintQuote(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14095,7 +14196,7 @@ func (_self *WalletPostgresDatabase) ReleaseMintQuote(operationId string) error 
 func (_self *WalletPostgresDatabase) ReleaseProofs(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14126,7 +14227,7 @@ func (_self *WalletPostgresDatabase) ReleaseProofs(operationId string) error {
 func (_self *WalletPostgresDatabase) RemoveKeys(id Id) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14157,7 +14258,7 @@ func (_self *WalletPostgresDatabase) RemoveKeys(id Id) error {
 func (_self *WalletPostgresDatabase) RemoveMeltQuote(quoteId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14188,7 +14289,7 @@ func (_self *WalletPostgresDatabase) RemoveMeltQuote(quoteId string) error {
 func (_self *WalletPostgresDatabase) RemoveMint(mintUrl MintUrl) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14219,7 +14320,7 @@ func (_self *WalletPostgresDatabase) RemoveMint(mintUrl MintUrl) error {
 func (_self *WalletPostgresDatabase) RemoveMintQuote(quoteId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14250,7 +14351,7 @@ func (_self *WalletPostgresDatabase) RemoveMintQuote(quoteId string) error {
 func (_self *WalletPostgresDatabase) RemoveTransaction(transactionId TransactionId) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14281,7 +14382,7 @@ func (_self *WalletPostgresDatabase) RemoveTransaction(transactionId Transaction
 func (_self *WalletPostgresDatabase) ReserveMeltQuote(quoteId string, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14312,7 +14413,7 @@ func (_self *WalletPostgresDatabase) ReserveMeltQuote(quoteId string, operationI
 func (_self *WalletPostgresDatabase) ReserveMintQuote(quoteId string, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14343,7 +14444,7 @@ func (_self *WalletPostgresDatabase) ReserveMintQuote(quoteId string, operationI
 func (_self *WalletPostgresDatabase) ReserveProofs(ys []PublicKey, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14374,7 +14475,7 @@ func (_self *WalletPostgresDatabase) ReserveProofs(ys []PublicKey, operationId s
 func (_self *WalletPostgresDatabase) UpdateMintUrl(oldMintUrl MintUrl, newMintUrl MintUrl) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14405,7 +14506,7 @@ func (_self *WalletPostgresDatabase) UpdateMintUrl(oldMintUrl MintUrl, newMintUr
 func (_self *WalletPostgresDatabase) UpdateProofs(added []ProofInfo, removedYs []PublicKey) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14436,7 +14537,7 @@ func (_self *WalletPostgresDatabase) UpdateProofs(added []ProofInfo, removedYs [
 func (_self *WalletPostgresDatabase) UpdateProofsState(ys []PublicKey, state ProofState) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14467,7 +14568,7 @@ func (_self *WalletPostgresDatabase) UpdateProofsState(ys []PublicKey, state Pro
 func (_self *WalletPostgresDatabase) UpdateSaga(sagaJson string) (bool, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.int8_t {
@@ -14505,15 +14606,15 @@ type FfiConverterWalletPostgresDatabase struct{}
 
 var FfiConverterWalletPostgresDatabaseINSTANCE = FfiConverterWalletPostgresDatabase{}
 
-func (c FfiConverterWalletPostgresDatabase) Lift(pointer unsafe.Pointer) *WalletPostgresDatabase {
+func (c FfiConverterWalletPostgresDatabase) Lift(handle C.uint64_t) *WalletPostgresDatabase {
 	result := &WalletPostgresDatabase{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_walletpostgresdatabase(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_walletpostgresdatabase(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_walletpostgresdatabase(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_walletpostgresdatabase(handle, status)
 			},
 		),
 	}
@@ -14522,21 +14623,28 @@ func (c FfiConverterWalletPostgresDatabase) Lift(pointer unsafe.Pointer) *Wallet
 }
 
 func (c FfiConverterWalletPostgresDatabase) Read(reader io.Reader) *WalletPostgresDatabase {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterWalletPostgresDatabase) Lower(value *WalletPostgresDatabase) unsafe.Pointer {
+func (c FfiConverterWalletPostgresDatabase) Lower(value *WalletPostgresDatabase) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*WalletPostgresDatabase")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*WalletPostgresDatabase")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterWalletPostgresDatabase) Write(writer io.Writer, value *WalletPostgresDatabase) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalWalletPostgresDatabase(handle uint64) *WalletPostgresDatabase {
+	return FfiConverterWalletPostgresDatabaseINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalWalletPostgresDatabase(value *WalletPostgresDatabase) uint64 {
+	return uint64(FfiConverterWalletPostgresDatabaseINSTANCE.Lower(value))
 }
 
 type FfiDestroyerWalletPostgresDatabase struct{}
@@ -14594,7 +14702,7 @@ type WalletRepository struct {
 // - `Postgres { url }` — built-in Rust Postgres backend
 // - `Custom { db }` — foreign-language implementation of `WalletDatabase`
 func NewWalletRepository(mnemonic string, store WalletStore) (*WalletRepository, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_walletrepository_new(FfiConverterStringINSTANCE.Lower(mnemonic), FfiConverterWalletStoreINSTANCE.Lower(store), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -14607,7 +14715,7 @@ func NewWalletRepository(mnemonic string, store WalletStore) (*WalletRepository,
 
 // Create a new WalletRepository with proxy configuration
 func WalletRepositoryNewWithProxy(mnemonic string, store WalletStore, proxyUrl string) (*WalletRepository, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_walletrepository_new_with_proxy(FfiConverterStringINSTANCE.Lower(mnemonic), FfiConverterWalletStoreINSTANCE.Lower(store), FfiConverterStringINSTANCE.Lower(proxyUrl), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -14622,7 +14730,7 @@ func WalletRepositoryNewWithProxy(mnemonic string, store WalletStore, proxyUrl s
 func (_self *WalletRepository) CreateWallet(mintUrl MintUrl, unit *CurrencyUnit, targetProofCount *uint32) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14654,7 +14762,7 @@ func (_self *WalletRepository) CreateWallet(mintUrl MintUrl, unit *CurrencyUnit,
 func (_self *WalletRepository) GetBalances() (map[WalletKey]Amount, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -14692,26 +14800,26 @@ func (_self *WalletRepository) GetBalances() (map[WalletKey]Amount, error) {
 func (_self *WalletRepository) GetWallet(mintUrl MintUrl, unit CurrencyUnit) (*Wallet, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
-			res := C.ffi_cdk_ffi_rust_future_complete_pointer(handle, status)
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
 			return res
 		},
 		// liftFn
-		func(ffi unsafe.Pointer) *Wallet {
+		func(ffi C.uint64_t) *Wallet {
 			return FfiConverterWalletINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_walletrepository_get_wallet(
 			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl), FfiConverterCurrencyUnitINSTANCE.Lower(unit)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_pointer(handle, continuation, data)
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
 		},
 		// freeFn
 		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_pointer(handle)
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
 		},
 	)
 
@@ -14788,7 +14896,7 @@ func (_self *WalletRepository) HasMint(mintUrl MintUrl) bool {
 func (_self *WalletRepository) RemoveWallet(mintUrl MintUrl, currencyUnit CurrencyUnit) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14862,7 +14970,7 @@ func (_self *WalletRepository) SetMetadataCacheTtlForAllMints(ttlSecs *uint64) {
 func (_self *WalletRepository) SetMetadataCacheTtlForMint(mintUrl MintUrl, ttlSecs *uint64) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -14898,15 +15006,15 @@ type FfiConverterWalletRepository struct{}
 
 var FfiConverterWalletRepositoryINSTANCE = FfiConverterWalletRepository{}
 
-func (c FfiConverterWalletRepository) Lift(pointer unsafe.Pointer) *WalletRepository {
+func (c FfiConverterWalletRepository) Lift(handle C.uint64_t) *WalletRepository {
 	result := &WalletRepository{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_walletrepository(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_walletrepository(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_walletrepository(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_walletrepository(handle, status)
 			},
 		),
 	}
@@ -14915,21 +15023,28 @@ func (c FfiConverterWalletRepository) Lift(pointer unsafe.Pointer) *WalletReposi
 }
 
 func (c FfiConverterWalletRepository) Read(reader io.Reader) *WalletRepository {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterWalletRepository) Lower(value *WalletRepository) unsafe.Pointer {
+func (c FfiConverterWalletRepository) Lower(value *WalletRepository) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*WalletRepository")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*WalletRepository")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterWalletRepository) Write(writer io.Writer, value *WalletRepository) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalWalletRepository(handle uint64) *WalletRepository {
+	return FfiConverterWalletRepositoryINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalWalletRepository(value *WalletRepository) uint64 {
+	return uint64(FfiConverterWalletRepositoryINSTANCE.Lower(value))
 }
 
 type FfiDestroyerWalletRepository struct{}
@@ -14999,7 +15114,7 @@ type WalletSqliteDatabase struct {
 
 // Create a new WalletSqliteDatabase with the given work directory
 func NewWalletSqliteDatabase(filePath string) (*WalletSqliteDatabase, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_walletsqlitedatabase_new(FfiConverterStringINSTANCE.Lower(filePath), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -15012,7 +15127,7 @@ func NewWalletSqliteDatabase(filePath string) (*WalletSqliteDatabase, error) {
 
 // Create an in-memory database
 func WalletSqliteDatabaseNewInMemory() (*WalletSqliteDatabase, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_walletsqlitedatabase_new_in_memory(_uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -15026,7 +15141,7 @@ func WalletSqliteDatabaseNewInMemory() (*WalletSqliteDatabase, error) {
 func (_self *WalletSqliteDatabase) AddKeys(keyset KeySet) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15057,7 +15172,7 @@ func (_self *WalletSqliteDatabase) AddKeys(keyset KeySet) error {
 func (_self *WalletSqliteDatabase) AddMeltQuote(quote MeltQuote) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15088,7 +15203,7 @@ func (_self *WalletSqliteDatabase) AddMeltQuote(quote MeltQuote) error {
 func (_self *WalletSqliteDatabase) AddMint(mintUrl MintUrl, mintInfo *MintInfo) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15119,7 +15234,7 @@ func (_self *WalletSqliteDatabase) AddMint(mintUrl MintUrl, mintInfo *MintInfo) 
 func (_self *WalletSqliteDatabase) AddMintKeysets(mintUrl MintUrl, keysets []KeySetInfo) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15150,7 +15265,7 @@ func (_self *WalletSqliteDatabase) AddMintKeysets(mintUrl MintUrl, keysets []Key
 func (_self *WalletSqliteDatabase) AddMintQuote(quote MintQuote) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15181,7 +15296,7 @@ func (_self *WalletSqliteDatabase) AddMintQuote(quote MintQuote) error {
 func (_self *WalletSqliteDatabase) AddP2pkKey(pubkey PublicKey, derivationPath string, derivationIndex uint32) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15212,7 +15327,7 @@ func (_self *WalletSqliteDatabase) AddP2pkKey(pubkey PublicKey, derivationPath s
 func (_self *WalletSqliteDatabase) AddSaga(sagaJson string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15243,7 +15358,7 @@ func (_self *WalletSqliteDatabase) AddSaga(sagaJson string) error {
 func (_self *WalletSqliteDatabase) AddTransaction(transaction Transaction) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15274,7 +15389,7 @@ func (_self *WalletSqliteDatabase) AddTransaction(transaction Transaction) error
 func (_self *WalletSqliteDatabase) DeleteSaga(id string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -15305,7 +15420,7 @@ func (_self *WalletSqliteDatabase) DeleteSaga(id string) error {
 func (_self *WalletSqliteDatabase) GetBalance(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState) (uint64, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
@@ -15338,7 +15453,7 @@ func (_self *WalletSqliteDatabase) GetBalance(mintUrl *MintUrl, unit *CurrencyUn
 func (_self *WalletSqliteDatabase) GetIncompleteSagas() ([]string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15373,7 +15488,7 @@ func (_self *WalletSqliteDatabase) GetIncompleteSagas() ([]string, error) {
 func (_self *WalletSqliteDatabase) GetKeys(id Id) (*Keys, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15408,7 +15523,7 @@ func (_self *WalletSqliteDatabase) GetKeys(id Id) (*Keys, error) {
 func (_self *WalletSqliteDatabase) GetKeysetById(keysetId Id) (*KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15443,7 +15558,7 @@ func (_self *WalletSqliteDatabase) GetKeysetById(keysetId Id) (*KeySetInfo, erro
 func (_self *WalletSqliteDatabase) GetMeltQuote(quoteId string) (*MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15478,7 +15593,7 @@ func (_self *WalletSqliteDatabase) GetMeltQuote(quoteId string) (*MeltQuote, err
 func (_self *WalletSqliteDatabase) GetMeltQuotes() ([]MeltQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15513,7 +15628,7 @@ func (_self *WalletSqliteDatabase) GetMeltQuotes() ([]MeltQuote, error) {
 func (_self *WalletSqliteDatabase) GetMint(mintUrl MintUrl) (*MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15548,7 +15663,7 @@ func (_self *WalletSqliteDatabase) GetMint(mintUrl MintUrl) (*MintInfo, error) {
 func (_self *WalletSqliteDatabase) GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15583,7 +15698,7 @@ func (_self *WalletSqliteDatabase) GetMintKeysets(mintUrl MintUrl) (*[]KeySetInf
 func (_self *WalletSqliteDatabase) GetMintQuote(quoteId string) (*MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15618,7 +15733,7 @@ func (_self *WalletSqliteDatabase) GetMintQuote(quoteId string) (*MintQuote, err
 func (_self *WalletSqliteDatabase) GetMintQuotes() ([]MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15653,7 +15768,7 @@ func (_self *WalletSqliteDatabase) GetMintQuotes() ([]MintQuote, error) {
 func (_self *WalletSqliteDatabase) GetMints() (map[MintUrl]*MintInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15688,7 +15803,7 @@ func (_self *WalletSqliteDatabase) GetMints() (map[MintUrl]*MintInfo, error) {
 func (_self *WalletSqliteDatabase) GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15723,7 +15838,7 @@ func (_self *WalletSqliteDatabase) GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey
 func (_self *WalletSqliteDatabase) GetProofs(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState, spendingConditions *[]SpendingConditions) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15758,7 +15873,7 @@ func (_self *WalletSqliteDatabase) GetProofs(mintUrl *MintUrl, unit *CurrencyUni
 func (_self *WalletSqliteDatabase) GetProofsByYs(ys []PublicKey) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15793,7 +15908,7 @@ func (_self *WalletSqliteDatabase) GetProofsByYs(ys []PublicKey) ([]ProofInfo, e
 func (_self *WalletSqliteDatabase) GetReservedProofs(operationId string) ([]ProofInfo, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15828,7 +15943,7 @@ func (_self *WalletSqliteDatabase) GetReservedProofs(operationId string) ([]Proo
 func (_self *WalletSqliteDatabase) GetSaga(id string) (*string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15863,7 +15978,7 @@ func (_self *WalletSqliteDatabase) GetSaga(id string) (*string, error) {
 func (_self *WalletSqliteDatabase) GetTransaction(transactionId TransactionId) (*Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15898,7 +16013,7 @@ func (_self *WalletSqliteDatabase) GetTransaction(transactionId TransactionId) (
 func (_self *WalletSqliteDatabase) GetUnissuedMintQuotes() ([]MintQuote, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -15933,7 +16048,7 @@ func (_self *WalletSqliteDatabase) GetUnissuedMintQuotes() ([]MintQuote, error) 
 func (_self *WalletSqliteDatabase) IncrementKeysetCounter(keysetId Id, count uint32) (uint32, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.uint32_t {
@@ -15966,7 +16081,7 @@ func (_self *WalletSqliteDatabase) IncrementKeysetCounter(keysetId Id, count uin
 func (_self *WalletSqliteDatabase) KvList(primaryNamespace string, secondaryNamespace string) ([]string, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -16001,7 +16116,7 @@ func (_self *WalletSqliteDatabase) KvList(primaryNamespace string, secondaryName
 func (_self *WalletSqliteDatabase) KvRead(primaryNamespace string, secondaryNamespace string, key string) (*[]byte, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -16036,7 +16151,7 @@ func (_self *WalletSqliteDatabase) KvRead(primaryNamespace string, secondaryName
 func (_self *WalletSqliteDatabase) KvRemove(primaryNamespace string, secondaryNamespace string, key string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16067,7 +16182,7 @@ func (_self *WalletSqliteDatabase) KvRemove(primaryNamespace string, secondaryNa
 func (_self *WalletSqliteDatabase) KvWrite(primaryNamespace string, secondaryNamespace string, key string, value []byte) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16098,7 +16213,7 @@ func (_self *WalletSqliteDatabase) KvWrite(primaryNamespace string, secondaryNam
 func (_self *WalletSqliteDatabase) LatestP2pk() (*P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -16133,7 +16248,7 @@ func (_self *WalletSqliteDatabase) LatestP2pk() (*P2pkSigningKey, error) {
 func (_self *WalletSqliteDatabase) ListP2pkKeys() ([]P2pkSigningKey, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -16168,7 +16283,7 @@ func (_self *WalletSqliteDatabase) ListP2pkKeys() ([]P2pkSigningKey, error) {
 func (_self *WalletSqliteDatabase) ListTransactions(mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) ([]Transaction, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -16203,7 +16318,7 @@ func (_self *WalletSqliteDatabase) ListTransactions(mintUrl *MintUrl, direction 
 func (_self *WalletSqliteDatabase) ReleaseMeltQuote(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16234,7 +16349,7 @@ func (_self *WalletSqliteDatabase) ReleaseMeltQuote(operationId string) error {
 func (_self *WalletSqliteDatabase) ReleaseMintQuote(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16265,7 +16380,7 @@ func (_self *WalletSqliteDatabase) ReleaseMintQuote(operationId string) error {
 func (_self *WalletSqliteDatabase) ReleaseProofs(operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16296,7 +16411,7 @@ func (_self *WalletSqliteDatabase) ReleaseProofs(operationId string) error {
 func (_self *WalletSqliteDatabase) RemoveKeys(id Id) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16327,7 +16442,7 @@ func (_self *WalletSqliteDatabase) RemoveKeys(id Id) error {
 func (_self *WalletSqliteDatabase) RemoveMeltQuote(quoteId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16358,7 +16473,7 @@ func (_self *WalletSqliteDatabase) RemoveMeltQuote(quoteId string) error {
 func (_self *WalletSqliteDatabase) RemoveMint(mintUrl MintUrl) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16389,7 +16504,7 @@ func (_self *WalletSqliteDatabase) RemoveMint(mintUrl MintUrl) error {
 func (_self *WalletSqliteDatabase) RemoveMintQuote(quoteId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16420,7 +16535,7 @@ func (_self *WalletSqliteDatabase) RemoveMintQuote(quoteId string) error {
 func (_self *WalletSqliteDatabase) RemoveTransaction(transactionId TransactionId) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16451,7 +16566,7 @@ func (_self *WalletSqliteDatabase) RemoveTransaction(transactionId TransactionId
 func (_self *WalletSqliteDatabase) ReserveMeltQuote(quoteId string, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16482,7 +16597,7 @@ func (_self *WalletSqliteDatabase) ReserveMeltQuote(quoteId string, operationId 
 func (_self *WalletSqliteDatabase) ReserveMintQuote(quoteId string, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16513,7 +16628,7 @@ func (_self *WalletSqliteDatabase) ReserveMintQuote(quoteId string, operationId 
 func (_self *WalletSqliteDatabase) ReserveProofs(ys []PublicKey, operationId string) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16544,7 +16659,7 @@ func (_self *WalletSqliteDatabase) ReserveProofs(ys []PublicKey, operationId str
 func (_self *WalletSqliteDatabase) UpdateMintUrl(oldMintUrl MintUrl, newMintUrl MintUrl) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16575,7 +16690,7 @@ func (_self *WalletSqliteDatabase) UpdateMintUrl(oldMintUrl MintUrl, newMintUrl 
 func (_self *WalletSqliteDatabase) UpdateProofs(added []ProofInfo, removedYs []PublicKey) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16606,7 +16721,7 @@ func (_self *WalletSqliteDatabase) UpdateProofs(added []ProofInfo, removedYs []P
 func (_self *WalletSqliteDatabase) UpdateProofsState(ys []PublicKey, state ProofState) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[FfiError](
+	_, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
@@ -16637,7 +16752,7 @@ func (_self *WalletSqliteDatabase) UpdateProofsState(ys []PublicKey, state Proof
 func (_self *WalletSqliteDatabase) UpdateSaga(sagaJson string) (bool, error) {
 	_pointer := _self.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) C.int8_t {
@@ -16675,15 +16790,15 @@ type FfiConverterWalletSqliteDatabase struct{}
 
 var FfiConverterWalletSqliteDatabaseINSTANCE = FfiConverterWalletSqliteDatabase{}
 
-func (c FfiConverterWalletSqliteDatabase) Lift(pointer unsafe.Pointer) *WalletSqliteDatabase {
+func (c FfiConverterWalletSqliteDatabase) Lift(handle C.uint64_t) *WalletSqliteDatabase {
 	result := &WalletSqliteDatabase{
 		newFfiObject(
-			pointer,
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
-				return C.uniffi_cdk_ffi_fn_clone_walletsqlitedatabase(pointer, status)
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_walletsqlitedatabase(handle, status)
 			},
-			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_walletsqlitedatabase(pointer, status)
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_walletsqlitedatabase(handle, status)
 			},
 		),
 	}
@@ -16692,21 +16807,28 @@ func (c FfiConverterWalletSqliteDatabase) Lift(pointer unsafe.Pointer) *WalletSq
 }
 
 func (c FfiConverterWalletSqliteDatabase) Read(reader io.Reader) *WalletSqliteDatabase {
-	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+	return c.Lift(C.uint64_t(readUint64(reader)))
 }
 
-func (c FfiConverterWalletSqliteDatabase) Lower(value *WalletSqliteDatabase) unsafe.Pointer {
+func (c FfiConverterWalletSqliteDatabase) Lower(value *WalletSqliteDatabase) C.uint64_t {
 	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the pointer will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked pointer.
-	pointer := value.ffiObject.incrementPointer("*WalletSqliteDatabase")
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*WalletSqliteDatabase")
 	defer value.ffiObject.decrementPointer()
-	return pointer
-
+	return handle
 }
 
 func (c FfiConverterWalletSqliteDatabase) Write(writer io.Writer, value *WalletSqliteDatabase) {
-	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalWalletSqliteDatabase(handle uint64) *WalletSqliteDatabase {
+	return FfiConverterWalletSqliteDatabaseINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalWalletSqliteDatabase(value *WalletSqliteDatabase) uint64 {
+	return uint64(FfiConverterWalletSqliteDatabaseINSTANCE.Lower(value))
 }
 
 type FfiDestroyerWalletSqliteDatabase struct{}
@@ -24641,13 +24763,13 @@ func cdkffi_uniffiFutureContinuationCallback(data C.uint64_t, pollResult C.int8_
 }
 
 func uniffiRustCallAsync[E any, T any, F any](
-	errConverter BufReader[*E],
+	errConverter BufReader[E],
 	completeFunc rustFutureCompleteFunc[F],
 	liftFunc func(F) T,
 	rustFuture C.uint64_t,
 	pollFunc rustFuturePollFunc,
 	freeFunc rustFutureFreeFunc,
-) (T, *E) {
+) (T, E) {
 	defer freeFunc(rustFuture)
 
 	pollResult := int8(-1)
@@ -24665,17 +24787,10 @@ func uniffiRustCallAsync[E any, T any, F any](
 		pollResult = <-waiter
 	}
 
-	var goValue T
-	var ffiValue F
-	var err *E
-
-	ffiValue, err = rustCallWithError(errConverter, func(status *C.RustCallStatus) F {
+	ffiValue, err := rustCallWithError(errConverter, func(status *C.RustCallStatus) F {
 		return completeFunc(rustFuture, status)
 	})
-	if err != nil {
-		return goValue, err
-	}
-	return liftFunc(ffiValue), nil
+	return liftFunc(ffiValue), err
 }
 
 //export cdkffi_uniffiFreeGorutine
@@ -24710,7 +24825,7 @@ func CreateBip321Uri(creq *string, bolt11 *string, bolt12 *string) string {
 
 // Factory helpers returning a CDK wallet database behind the FFI trait
 func CreateWalletDb(backend WalletDbBackend) (WalletDatabase, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_func_create_wallet_db(FfiConverterWalletDbBackendINSTANCE.Lower(backend), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -24732,7 +24847,7 @@ func CustomWalletStore(db WalletDatabase) WalletStore {
 
 // Decode AuthProof from JSON string
 func DecodeAuthProof(json string) (AuthProof, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_auth_proof(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24747,7 +24862,7 @@ func DecodeAuthProof(json string) (AuthProof, error) {
 
 // Decode Conditions from JSON string
 func DecodeConditions(json string) (Conditions, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_conditions(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24762,7 +24877,7 @@ func DecodeConditions(json string) (Conditions, error) {
 
 // Decode ContactInfo from JSON string
 func DecodeContactInfo(json string) (ContactInfo, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_contact_info(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24777,7 +24892,7 @@ func DecodeContactInfo(json string) (ContactInfo, error) {
 
 // Decode CreateRequestParams from JSON string
 func DecodeCreateRequestParams(json string) (CreateRequestParams, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_create_request_params(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24814,7 +24929,7 @@ func DecodeCreateRequestParams(json string) (CreateRequestParams, error) {
 // }
 // ```
 func DecodeInvoice(invoiceStr string) (DecodedInvoice, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_invoice(FfiConverterStringINSTANCE.Lower(invoiceStr), _uniffiStatus),
 		}
@@ -24829,7 +24944,7 @@ func DecodeInvoice(invoiceStr string) (DecodedInvoice, error) {
 
 // Decode KeySet from JSON string
 func DecodeKeySet(json string) (KeySet, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_key_set(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24844,7 +24959,7 @@ func DecodeKeySet(json string) (KeySet, error) {
 
 // Decode KeySetInfo from JSON string
 func DecodeKeySetInfo(json string) (KeySetInfo, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_key_set_info(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24859,7 +24974,7 @@ func DecodeKeySetInfo(json string) (KeySetInfo, error) {
 
 // Decode Keys from JSON string
 func DecodeKeys(json string) (Keys, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_keys(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24874,7 +24989,7 @@ func DecodeKeys(json string) (Keys, error) {
 
 // Decode MeltQuote from JSON string
 func DecodeMeltQuote(json string) (MeltQuote, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_melt_quote(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24889,7 +25004,7 @@ func DecodeMeltQuote(json string) (MeltQuote, error) {
 
 // Decode MintInfo from JSON string
 func DecodeMintInfo(json string) (MintInfo, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_mint_info(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24904,7 +25019,7 @@ func DecodeMintInfo(json string) (MintInfo, error) {
 
 // Decode MintQuote from JSON string
 func DecodeMintQuote(json string) (MintQuote, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_mint_quote(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24919,7 +25034,7 @@ func DecodeMintQuote(json string) (MintQuote, error) {
 
 // Decode MintVersion from JSON string
 func DecodeMintVersion(json string) (MintVersion, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_mint_version(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24934,7 +25049,7 @@ func DecodeMintVersion(json string) (MintVersion, error) {
 
 // Decode Nuts from JSON string
 func DecodeNuts(json string) (Nuts, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_nuts(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24949,7 +25064,7 @@ func DecodeNuts(json string) (Nuts, error) {
 
 // Decode a payment request from its encoded string representation
 func DecodePaymentRequest(encoded string) (*PaymentRequest, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_func_decode_payment_request(FfiConverterStringINSTANCE.Lower(encoded), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -24962,7 +25077,7 @@ func DecodePaymentRequest(encoded string) (*PaymentRequest, error) {
 
 // Decode ProofInfo from JSON string
 func DecodeProofInfo(json string) (ProofInfo, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_proof_info(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24977,7 +25092,7 @@ func DecodeProofInfo(json string) (ProofInfo, error) {
 
 // Decode ProofStateUpdate from JSON string
 func DecodeProofStateUpdate(json string) (ProofStateUpdate, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_proof_state_update(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -24992,7 +25107,7 @@ func DecodeProofStateUpdate(json string) (ProofStateUpdate, error) {
 
 // Decode ReceiveOptions from JSON string
 func DecodeReceiveOptions(json string) (ReceiveOptions, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_receive_options(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -25007,7 +25122,7 @@ func DecodeReceiveOptions(json string) (ReceiveOptions, error) {
 
 // Decode SendMemo from JSON string
 func DecodeSendMemo(json string) (SendMemo, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_send_memo(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -25022,7 +25137,7 @@ func DecodeSendMemo(json string) (SendMemo, error) {
 
 // Decode SendOptions from JSON string
 func DecodeSendOptions(json string) (SendOptions, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_send_options(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -25037,7 +25152,7 @@ func DecodeSendOptions(json string) (SendOptions, error) {
 
 // Decode SubscribeParams from JSON string
 func DecodeSubscribeParams(json string) (SubscribeParams, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_subscribe_params(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -25052,7 +25167,7 @@ func DecodeSubscribeParams(json string) (SubscribeParams, error) {
 
 // Decode Transaction from JSON string
 func DecodeTransaction(json string) (Transaction, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_decode_transaction(FfiConverterStringINSTANCE.Lower(json), _uniffiStatus),
 		}
@@ -25067,7 +25182,7 @@ func DecodeTransaction(json string) (Transaction, error) {
 
 // Encode AuthProof to JSON string
 func EncodeAuthProof(proof AuthProof) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_auth_proof(FfiConverterAuthProofINSTANCE.Lower(proof), _uniffiStatus),
 		}
@@ -25082,7 +25197,7 @@ func EncodeAuthProof(proof AuthProof) (string, error) {
 
 // Encode Conditions to JSON string
 func EncodeConditions(conditions Conditions) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_conditions(FfiConverterConditionsINSTANCE.Lower(conditions), _uniffiStatus),
 		}
@@ -25097,7 +25212,7 @@ func EncodeConditions(conditions Conditions) (string, error) {
 
 // Encode ContactInfo to JSON string
 func EncodeContactInfo(info ContactInfo) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_contact_info(FfiConverterContactInfoINSTANCE.Lower(info), _uniffiStatus),
 		}
@@ -25112,7 +25227,7 @@ func EncodeContactInfo(info ContactInfo) (string, error) {
 
 // Encode CreateRequestParams to JSON string
 func EncodeCreateRequestParams(params CreateRequestParams) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_create_request_params(FfiConverterCreateRequestParamsINSTANCE.Lower(params), _uniffiStatus),
 		}
@@ -25127,7 +25242,7 @@ func EncodeCreateRequestParams(params CreateRequestParams) (string, error) {
 
 // Encode KeySet to JSON string
 func EncodeKeySet(keyset KeySet) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_key_set(FfiConverterKeySetINSTANCE.Lower(keyset), _uniffiStatus),
 		}
@@ -25142,7 +25257,7 @@ func EncodeKeySet(keyset KeySet) (string, error) {
 
 // Encode KeySetInfo to JSON string
 func EncodeKeySetInfo(info KeySetInfo) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_key_set_info(FfiConverterKeySetInfoINSTANCE.Lower(info), _uniffiStatus),
 		}
@@ -25157,7 +25272,7 @@ func EncodeKeySetInfo(info KeySetInfo) (string, error) {
 
 // Encode Keys to JSON string
 func EncodeKeys(keys Keys) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_keys(FfiConverterKeysINSTANCE.Lower(keys), _uniffiStatus),
 		}
@@ -25172,7 +25287,7 @@ func EncodeKeys(keys Keys) (string, error) {
 
 // Encode MeltQuote to JSON string
 func EncodeMeltQuote(quote MeltQuote) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_melt_quote(FfiConverterMeltQuoteINSTANCE.Lower(quote), _uniffiStatus),
 		}
@@ -25187,7 +25302,7 @@ func EncodeMeltQuote(quote MeltQuote) (string, error) {
 
 // Encode MintInfo to JSON string
 func EncodeMintInfo(info MintInfo) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_mint_info(FfiConverterMintInfoINSTANCE.Lower(info), _uniffiStatus),
 		}
@@ -25202,7 +25317,7 @@ func EncodeMintInfo(info MintInfo) (string, error) {
 
 // Encode MintQuote to JSON string
 func EncodeMintQuote(quote MintQuote) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_mint_quote(FfiConverterMintQuoteINSTANCE.Lower(quote), _uniffiStatus),
 		}
@@ -25217,7 +25332,7 @@ func EncodeMintQuote(quote MintQuote) (string, error) {
 
 // Encode MintVersion to JSON string
 func EncodeMintVersion(version MintVersion) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_mint_version(FfiConverterMintVersionINSTANCE.Lower(version), _uniffiStatus),
 		}
@@ -25232,7 +25347,7 @@ func EncodeMintVersion(version MintVersion) (string, error) {
 
 // Encode Nuts to JSON string
 func EncodeNuts(nuts Nuts) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_nuts(FfiConverterNutsINSTANCE.Lower(nuts), _uniffiStatus),
 		}
@@ -25247,7 +25362,7 @@ func EncodeNuts(nuts Nuts) (string, error) {
 
 // Encode ProofInfo to JSON string
 func EncodeProofInfo(info ProofInfo) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_proof_info(FfiConverterProofInfoINSTANCE.Lower(info), _uniffiStatus),
 		}
@@ -25262,7 +25377,7 @@ func EncodeProofInfo(info ProofInfo) (string, error) {
 
 // Encode ProofStateUpdate to JSON string
 func EncodeProofStateUpdate(update ProofStateUpdate) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_proof_state_update(FfiConverterProofStateUpdateINSTANCE.Lower(update), _uniffiStatus),
 		}
@@ -25277,7 +25392,7 @@ func EncodeProofStateUpdate(update ProofStateUpdate) (string, error) {
 
 // Encode ReceiveOptions to JSON string
 func EncodeReceiveOptions(options ReceiveOptions) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_receive_options(FfiConverterReceiveOptionsINSTANCE.Lower(options), _uniffiStatus),
 		}
@@ -25292,7 +25407,7 @@ func EncodeReceiveOptions(options ReceiveOptions) (string, error) {
 
 // Encode SendMemo to JSON string
 func EncodeSendMemo(memo SendMemo) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_send_memo(FfiConverterSendMemoINSTANCE.Lower(memo), _uniffiStatus),
 		}
@@ -25307,7 +25422,7 @@ func EncodeSendMemo(memo SendMemo) (string, error) {
 
 // Encode SendOptions to JSON string
 func EncodeSendOptions(options SendOptions) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_send_options(FfiConverterSendOptionsINSTANCE.Lower(options), _uniffiStatus),
 		}
@@ -25322,7 +25437,7 @@ func EncodeSendOptions(options SendOptions) (string, error) {
 
 // Encode SubscribeParams to JSON string
 func EncodeSubscribeParams(params SubscribeParams) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_subscribe_params(FfiConverterSubscribeParamsINSTANCE.Lower(params), _uniffiStatus),
 		}
@@ -25337,7 +25452,7 @@ func EncodeSubscribeParams(params SubscribeParams) (string, error) {
 
 // Encode Transaction to JSON string
 func EncodeTransaction(transaction Transaction) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_encode_transaction(FfiConverterTransactionINSTANCE.Lower(transaction), _uniffiStatus),
 		}
@@ -25352,7 +25467,7 @@ func EncodeTransaction(transaction Transaction) (string, error) {
 
 // Generates a new random mnemonic phrase
 func GenerateMnemonic() (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_generate_mnemonic(_uniffiStatus),
 		}
@@ -25401,7 +25516,7 @@ func InitLogging(level string) {
 
 // Get amount that can be minted from a mint quote
 func MintQuoteAmountMintable(quote MintQuote) (Amount, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_mint_quote_amount_mintable(FfiConverterMintQuoteINSTANCE.Lower(quote), _uniffiStatus),
 		}
@@ -25416,7 +25531,7 @@ func MintQuoteAmountMintable(quote MintQuote) (Amount, error) {
 
 // Check if mint quote is expired
 func MintQuoteIsExpired(quote MintQuote, currentTime uint64) (bool, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.int8_t {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.int8_t {
 		return C.uniffi_cdk_ffi_fn_func_mint_quote_is_expired(FfiConverterMintQuoteINSTANCE.Lower(quote), FfiConverterUint64INSTANCE.Lower(currentTime), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
@@ -25429,7 +25544,7 @@ func MintQuoteIsExpired(quote MintQuote, currentTime uint64) (bool, error) {
 
 // Get total amount for a mint quote (amount paid)
 func MintQuoteTotalAmount(quote MintQuote) (Amount, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_mint_quote_total_amount(FfiConverterMintQuoteINSTANCE.Lower(quote), _uniffiStatus),
 		}
@@ -25444,7 +25559,7 @@ func MintQuoteTotalAmount(quote MintQuote) (Amount, error) {
 
 // Converts a mnemonic phrase to its entropy bytes
 func MnemonicToEntropy(mnemonic string) ([]byte, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_mnemonic_to_entropy(FfiConverterStringINSTANCE.Lower(mnemonic), _uniffiStatus),
 		}
@@ -25474,7 +25589,7 @@ func MnemonicToEntropy(mnemonic string) ([]byte, error) {
 //
 // Returns an error if the seed is too short or key derivation fails
 func NpubcashDeriveSecretKeyFromSeed(seed []byte) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_npubcash_derive_secret_key_from_seed(FfiConverterBytesINSTANCE.Lower(seed), _uniffiStatus),
 		}
@@ -25503,7 +25618,7 @@ func NpubcashDeriveSecretKeyFromSeed(seed []byte) (string, error) {
 //
 // Returns an error if the secret key is invalid
 func NpubcashGetPubkey(nostrSecretKey string) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_npubcash_get_pubkey(FfiConverterStringINSTANCE.Lower(nostrSecretKey), _uniffiStatus),
 		}
@@ -25551,7 +25666,7 @@ func NpubcashQuoteToMintQuote(quote NpubCashQuote) MintQuote {
 // // parsed.cashuRequests and parsed.bolt11Invoices are populated when present
 // ```
 func ParseBip321PaymentInstruction(instruction string, network BitcoinNetwork) (ParsedPaymentInstruction, error) {
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -25607,7 +25722,7 @@ func ProofIsActive(proof Proof, activeKeysetIds []string) bool {
 
 // Sign a P2PK proof with a secret key, returning a new signed proof
 func ProofSignP2pk(proof Proof, secretKeyHex string) (Proof, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_proof_sign_p2pk(FfiConverterProofINSTANCE.Lower(proof), FfiConverterStringINSTANCE.Lower(secretKeyHex), _uniffiStatus),
 		}
@@ -25622,7 +25737,7 @@ func ProofSignP2pk(proof Proof, secretKeyHex string) (Proof, error) {
 
 // Verify DLEQ proof on a proof
 func ProofVerifyDleq(proof Proof, mintPubkey PublicKey) error {
-	_, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) bool {
+	_, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) bool {
 		C.uniffi_cdk_ffi_fn_func_proof_verify_dleq(FfiConverterProofINSTANCE.Lower(proof), FfiConverterPublicKeyINSTANCE.Lower(mintPubkey), _uniffiStatus)
 		return false
 	})
@@ -25631,7 +25746,7 @@ func ProofVerifyDleq(proof Proof, mintPubkey PublicKey) error {
 
 // Verify HTLC witness on a proof
 func ProofVerifyHtlc(proof Proof) error {
-	_, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) bool {
+	_, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) bool {
 		C.uniffi_cdk_ffi_fn_func_proof_verify_htlc(FfiConverterProofINSTANCE.Lower(proof), _uniffiStatus)
 		return false
 	})
@@ -25640,7 +25755,7 @@ func ProofVerifyHtlc(proof Proof) error {
 
 // Get the Y value (hash_to_curve of secret) for a proof
 func ProofY(proof Proof) (string, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_proof_y(FfiConverterProofINSTANCE.Lower(proof), _uniffiStatus),
 		}
@@ -25655,7 +25770,7 @@ func ProofY(proof Proof) (string, error) {
 
 // Helper function to calculate total amount of proofs
 func ProofsTotalAmount(proofs []Proof) (Amount, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
 			inner: C.uniffi_cdk_ffi_fn_func_proofs_total_amount(FfiConverterSequenceProofINSTANCE.Lower(proofs), _uniffiStatus),
 		}
@@ -25677,7 +25792,7 @@ func ProofsTotalAmount(proofs []Proof) (Amount, error) {
 // The `network` parameter controls which on-chain address prefixes are accepted
 // in the resolved URI.
 func ResolveBip353PaymentInstruction(wallet *Wallet, address string, network BitcoinNetwork) (ParsedPaymentInstruction, error) {
-	res, err := uniffiRustCallAsync[FfiError](
+	res, err := uniffiRustCallAsync[*FfiError](
 		FfiConverterFfiErrorINSTANCE,
 		// completeFn
 		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
@@ -25719,7 +25834,7 @@ func SqliteWalletStore(path string) WalletStore {
 
 // Check if a transaction matches the given filter conditions
 func TransactionMatchesConditions(transaction Transaction, mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) (bool, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.int8_t {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.int8_t {
 		return C.uniffi_cdk_ffi_fn_func_transaction_matches_conditions(FfiConverterTransactionINSTANCE.Lower(transaction), FfiConverterOptionalMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalTransactionDirectionINSTANCE.Lower(direction), FfiConverterOptionalCurrencyUnitINSTANCE.Lower(unit), _uniffiStatus)
 	})
 	if _uniffiErr != nil {
