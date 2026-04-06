@@ -64,7 +64,7 @@ LIB_FILE="${LIB_DIR}/libcdk_ffi.${LIB_EXT}"
 PLATFORM_DIR="${PACKAGE_DIR}/native/${PLATFORM_OS}_${PLATFORM_ARCH}"
 
 # Build the Rust cdk-ffi library.
-CARGO_ARGS=(--package cdk-ffi --features postgres)
+CARGO_ARGS=(--package cdk-ffi --features postgres, --features supabase)
 if [ "${BUILD_PROFILE}" = "release" ]; then
     CARGO_ARGS+=(--release)
 elif [ "${BUILD_PROFILE}" != "dev" ]; then
