@@ -861,15 +861,6 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_func_postgres_wallet_store()
-		})
-		if checksum != 50185 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_postgres_wallet_store: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_func_proof_has_dleq()
 		})
 		if checksum != 56072 {
@@ -947,42 +938,6 @@ func uniffiCheckChecksums() {
 		if checksum != 53833 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_sqlite_wallet_store: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_func_supabase_get_schema_sql()
-		})
-		if checksum != 38567 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_supabase_get_schema_sql: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_func_supabase_required_schema_version()
-		})
-		if checksum != 48356 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_supabase_required_schema_version: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_func_supabase_signin()
-		})
-		if checksum != 44388 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_supabase_signin: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_func_supabase_signup()
-		})
-		if checksum != 31270 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_supabase_signup: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -1842,11 +1797,29 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_wallet_prepare_melt_token()
+		})
+		if checksum != 3555 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_prepare_melt_token: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_wallet_prepare_send()
 		})
 		if checksum != 18579 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_prepare_send: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_wallet_quote_onchain_melt_options()
+		})
+		if checksum != 54895 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_quote_onchain_melt_options: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -1865,6 +1838,15 @@ func uniffiCheckChecksums() {
 		if checksum != 40857 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_receive_proofs: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_wallet_recover_incomplete_sagas()
+		})
+		if checksum != 24677 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_recover_incomplete_sagas: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -1896,6 +1878,15 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_wallet_restore_with_opts()
+		})
+		if checksum != 61743 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_restore_with_opts: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_wallet_revert_transaction()
 		})
 		if checksum != 31115 {
@@ -1910,6 +1901,15 @@ func uniffiCheckChecksums() {
 		if checksum != 52137 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_revoke_send: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_wallet_select_onchain_melt_quote()
+		})
+		if checksum != 64446 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_select_onchain_melt_quote: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -2463,456 +2463,6 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_keys()
-		})
-		if checksum != 56387 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_melt_quote()
-		})
-		if checksum != 14392 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_mint()
-		})
-		if checksum != 29694 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_mint: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_mint_keysets()
-		})
-		if checksum != 63125 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_mint_keysets: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_mint_quote()
-		})
-		if checksum != 18330 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_p2pk_key()
-		})
-		if checksum != 15177 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_p2pk_key: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_saga()
-		})
-		if checksum != 62408 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_transaction()
-		})
-		if checksum != 60425 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_add_transaction: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_delete_saga()
-		})
-		if checksum != 52539 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_delete_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_balance()
-		})
-		if checksum != 26475 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_balance: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_incomplete_sagas()
-		})
-		if checksum != 55228 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_incomplete_sagas: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_keys()
-		})
-		if checksum != 1364 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_keyset_by_id()
-		})
-		if checksum != 47211 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_keyset_by_id: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_melt_quote()
-		})
-		if checksum != 15686 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_melt_quotes()
-		})
-		if checksum != 61301 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_melt_quotes: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint()
-		})
-		if checksum != 1440 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint_keysets()
-		})
-		if checksum != 52552 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint_keysets: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint_quote()
-		})
-		if checksum != 62393 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint_quotes()
-		})
-		if checksum != 37612 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mint_quotes: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mints()
-		})
-		if checksum != 51201 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_mints: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_p2pk_key()
-		})
-		if checksum != 47953 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_p2pk_key: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_proofs()
-		})
-		if checksum != 17876 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_proofs_by_ys()
-		})
-		if checksum != 18842 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_proofs_by_ys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_reserved_proofs()
-		})
-		if checksum != 35811 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_reserved_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_saga()
-		})
-		if checksum != 30028 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_transaction()
-		})
-		if checksum != 16334 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_transaction: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_unissued_mint_quotes()
-		})
-		if checksum != 431 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_get_unissued_mint_quotes: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_increment_keyset_counter()
-		})
-		if checksum != 11359 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_increment_keyset_counter: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_list()
-		})
-		if checksum != 61533 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_list: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_read()
-		})
-		if checksum != 9724 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_read: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_remove()
-		})
-		if checksum != 55077 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_remove: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_write()
-		})
-		if checksum != 45615 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_kv_write: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_latest_p2pk()
-		})
-		if checksum != 61527 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_latest_p2pk: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_list_p2pk_keys()
-		})
-		if checksum != 36644 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_list_p2pk_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_list_transactions()
-		})
-		if checksum != 57613 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_list_transactions: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_release_melt_quote()
-		})
-		if checksum != 33492 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_release_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_release_mint_quote()
-		})
-		if checksum != 54182 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_release_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_release_proofs()
-		})
-		if checksum != 18557 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_release_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_keys()
-		})
-		if checksum != 3270 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_melt_quote()
-		})
-		if checksum != 13050 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_mint()
-		})
-		if checksum != 52702 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_mint: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_mint_quote()
-		})
-		if checksum != 40583 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_transaction()
-		})
-		if checksum != 19625 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_remove_transaction: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_reserve_melt_quote()
-		})
-		if checksum != 25305 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_reserve_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_reserve_mint_quote()
-		})
-		if checksum != 51050 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_reserve_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_reserve_proofs()
-		})
-		if checksum != 39792 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_reserve_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_mint_url()
-		})
-		if checksum != 44171 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_mint_url: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_proofs()
-		})
-		if checksum != 54294 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_proofs_state()
-		})
-		if checksum != 58913 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_proofs_state: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_saga()
-		})
-		if checksum != 21044 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletpostgresdatabase_update_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_walletrepository_create_wallet()
 		})
 		if checksum != 32021 {
@@ -3435,537 +2985,6 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_keys()
-		})
-		if checksum != 62503 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_melt_quote()
-		})
-		if checksum != 10187 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_mint()
-		})
-		if checksum != 28054 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_mint: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_mint_keysets()
-		})
-		if checksum != 10474 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_mint_keysets: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_mint_quote()
-		})
-		if checksum != 15313 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_p2pk_key()
-		})
-		if checksum != 59198 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_p2pk_key: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_saga()
-		})
-		if checksum != 11024 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_transaction()
-		})
-		if checksum != 32489 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_add_transaction: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_call_rpc()
-		})
-		if checksum != 61590 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_call_rpc: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_check_schema_compatibility()
-		})
-		if checksum != 46529 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_check_schema_compatibility: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_delete_saga()
-		})
-		if checksum != 14792 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_delete_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_balance()
-		})
-		if checksum != 48748 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_balance: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_incomplete_sagas()
-		})
-		if checksum != 19971 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_incomplete_sagas: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_jwt_token()
-		})
-		if checksum != 7915 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_jwt_token: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_keys()
-		})
-		if checksum != 38879 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_keyset_by_id()
-		})
-		if checksum != 57154 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_keyset_by_id: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_melt_quote()
-		})
-		if checksum != 47123 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_melt_quotes()
-		})
-		if checksum != 39189 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_melt_quotes: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint()
-		})
-		if checksum != 45212 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint_keysets()
-		})
-		if checksum != 62660 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint_keysets: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint_quote()
-		})
-		if checksum != 42842 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint_quotes()
-		})
-		if checksum != 64252 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mint_quotes: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mints()
-		})
-		if checksum != 42892 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_mints: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_p2pk_key()
-		})
-		if checksum != 44504 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_p2pk_key: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_proofs()
-		})
-		if checksum != 50922 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_proofs_by_ys()
-		})
-		if checksum != 7347 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_proofs_by_ys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_reserved_proofs()
-		})
-		if checksum != 9662 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_reserved_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_saga()
-		})
-		if checksum != 56451 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_transaction()
-		})
-		if checksum != 9665 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_transaction: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_unissued_mint_quotes()
-		})
-		if checksum != 1805 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_get_unissued_mint_quotes: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_increment_keyset_counter()
-		})
-		if checksum != 17329 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_increment_keyset_counter: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_list()
-		})
-		if checksum != 25686 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_list: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_read()
-		})
-		if checksum != 59444 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_read: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_remove()
-		})
-		if checksum != 47042 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_remove: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_write()
-		})
-		if checksum != 42524 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_kv_write: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_latest_p2pk()
-		})
-		if checksum != 62295 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_latest_p2pk: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_list_p2pk_keys()
-		})
-		if checksum != 48177 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_list_p2pk_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_list_transactions()
-		})
-		if checksum != 49279 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_list_transactions: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_refresh_access_token()
-		})
-		if checksum != 28821 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_refresh_access_token: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_release_melt_quote()
-		})
-		if checksum != 23066 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_release_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_release_mint_quote()
-		})
-		if checksum != 36183 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_release_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_release_proofs()
-		})
-		if checksum != 59625 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_release_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_keys()
-		})
-		if checksum != 43110 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_keys: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_melt_quote()
-		})
-		if checksum != 48348 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_mint()
-		})
-		if checksum != 61239 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_mint: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_mint_quote()
-		})
-		if checksum != 35060 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_transaction()
-		})
-		if checksum != 19996 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_remove_transaction: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_reserve_melt_quote()
-		})
-		if checksum != 23531 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_reserve_melt_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_reserve_mint_quote()
-		})
-		if checksum != 34164 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_reserve_mint_quote: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_reserve_proofs()
-		})
-		if checksum != 9728 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_reserve_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_set_encryption_password()
-		})
-		if checksum != 10220 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_set_encryption_password: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_set_jwt_token()
-		})
-		if checksum != 61320 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_set_jwt_token: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_set_refresh_token()
-		})
-		if checksum != 1816 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_set_refresh_token: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_signin()
-		})
-		if checksum != 40567 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_signin: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_signup()
-		})
-		if checksum != 22333 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_signup: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_mint_url()
-		})
-		if checksum != 3094 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_mint_url: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_proofs()
-		})
-		if checksum != 13287 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_proofs: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_proofs_state()
-		})
-		if checksum != 29439 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_proofs_state: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_saga()
-		})
-		if checksum != 62519 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletsupabasedatabase_update_saga: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_constructor_npubcashclient_new()
 		})
 		if checksum != 49637 {
@@ -4029,15 +3048,6 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_constructor_walletpostgresdatabase_new()
-		})
-		if checksum != 43914 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_walletpostgresdatabase_new: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_constructor_walletrepository_new()
 		})
 		if checksum != 16691 {
@@ -4070,33 +3080,6 @@ func uniffiCheckChecksums() {
 		if checksum != 41747 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_walletsqlitedatabase_new_in_memory: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_constructor_walletsupabasedatabase_new()
-		})
-		if checksum != 41004 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_walletsupabasedatabase_new: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_constructor_walletsupabasedatabase_with_oidc()
-		})
-		if checksum != 44453 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_walletsupabasedatabase_with_oidc: UniFFI API checksum mismatch")
-		}
-	}
-	{
-		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
-			return C.uniffi_cdk_ffi_checksum_constructor_walletsupabasedatabase_with_supabase_auth()
-		})
-		if checksum != 46183 {
-			// If this happens try cleaning and rebuilding your project
-			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_walletsupabasedatabase_with_supabase_auth: UniFFI API checksum mismatch")
 		}
 	}
 }
@@ -4172,30 +3155,6 @@ func (FfiConverterUint64) Read(reader io.Reader) uint64 {
 type FfiDestroyerUint64 struct{}
 
 func (FfiDestroyerUint64) Destroy(_ uint64) {}
-
-type FfiConverterInt64 struct{}
-
-var FfiConverterInt64INSTANCE = FfiConverterInt64{}
-
-func (FfiConverterInt64) Lower(value int64) C.int64_t {
-	return C.int64_t(value)
-}
-
-func (FfiConverterInt64) Write(writer io.Writer, value int64) {
-	writeInt64(writer, value)
-}
-
-func (FfiConverterInt64) Lift(value C.int64_t) int64 {
-	return int64(value)
-}
-
-func (FfiConverterInt64) Read(reader io.Reader) int64 {
-	return readInt64(reader)
-}
-
-type FfiDestroyerInt64 struct{}
-
-func (FfiDestroyerInt64) Destroy(_ int64) {}
 
 type FfiConverterBool struct{}
 
@@ -6321,22 +5280,51 @@ type WalletInterface interface {
 	//
 	// A `PreparedMelt` that can be confirmed or cancelled
 	PrepareMeltProofs(quoteId string, proofs []Proof) (*PreparedMelt, error)
+	// Prepare a melt operation from an encoded token
+	//
+	// Decodes the token internally (handling keyset state for v2 keysets),
+	// extracts proofs, and prepares the melt operation.
+	//
+	// # Arguments
+	//
+	// * `quote_id` - The melt quote ID (obtained from `melt_quote`)
+	// * `encoded_token` - The encoded token string (cashuA or cashuB format)
+	//
+	// # Returns
+	//
+	// A `PreparedMelt` that can be confirmed or cancelled
+	PrepareMeltToken(quoteId string, encodedToken string) (*PreparedMelt, error)
 	// Prepare a send operation
 	PrepareSend(amount Amount, options SendOptions) (*PreparedSend, error)
+	// Fetch available onchain melt quote options.
+	//
+	// Each returned quote represents one selectable confirmation target/fee reserve.
+	// Pass the chosen quote to `select_onchain_melt_quote`, then prepare and confirm
+	// the returned quote ID through the normal melt flow.
+	QuoteOnchainMeltOptions(address string, amount Amount, maxFeeAmount *Amount) ([]MeltQuote, error)
 	// Receive tokens
 	Receive(token *Token, options ReceiveOptions) (Amount, error)
 	// Receive proofs directly
 	ReceiveProofs(proofs []Proof, options ReceiveOptions, memo *string, token *string) (Amount, error)
+	// Recover from incomplete wallet sagas after a crash
+	//
+	// Handles interrupted swap, send, receive, issue, and melt operations. Requires
+	// network access to the mint for states that need external status checks.
+	RecoverIncompleteSagas() (RecoveryReport, error)
 	// Refresh access token using the stored refresh token
 	RefreshAccessToken() error
 	// Refresh keysets from the mint
 	RefreshKeysets() ([]KeySetInfo, error)
 	// Restore wallet from seed
 	Restore() (Restored, error)
+	// Restore wallet from seed with custom NUT-13 options
+	RestoreWithOpts(opts Nut13Options) (Restored, error)
 	// Revert a transaction
 	RevertTransaction(id TransactionId) error
 	// Revoke a pending send operation
 	RevokeSend(operationId string) (Amount, error)
+	// Persist the selected onchain melt quote before preparing it.
+	SelectOnchainMeltQuote(quote MeltQuote) (MeltQuote, error)
 	// Set Clear Auth Token (CAT) for authentication
 	SetCat(cat string) error
 	// Set metadata cache TTL (time-to-live) in seconds
@@ -7799,6 +6787,52 @@ func (_self *Wallet) PrepareMeltProofs(quoteId string, proofs []Proof) (*Prepare
 	return res, err
 }
 
+// Prepare a melt operation from an encoded token
+//
+// Decodes the token internally (handling keyset state for v2 keysets),
+// extracts proofs, and prepares the melt operation.
+//
+// # Arguments
+//
+// * `quote_id` - The melt quote ID (obtained from `melt_quote`)
+// * `encoded_token` - The encoded token string (cashuA or cashuB format)
+//
+// # Returns
+//
+// A `PreparedMelt` that can be confirmed or cancelled
+func (_self *Wallet) PrepareMeltToken(quoteId string, encodedToken string) (*PreparedMelt, error) {
+	_pointer := _self.ffiObject.incrementPointer("*Wallet")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
+			return res
+		},
+		// liftFn
+		func(ffi C.uint64_t) *PreparedMelt {
+			return FfiConverterPreparedMeltINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_wallet_prepare_melt_token(
+			_pointer, FfiConverterStringINSTANCE.Lower(quoteId), FfiConverterStringINSTANCE.Lower(encodedToken)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_u64(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
 // Prepare a send operation
 func (_self *Wallet) PrepareSend(amount Amount, options SendOptions) (*PreparedSend, error) {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
@@ -7823,6 +6857,46 @@ func (_self *Wallet) PrepareSend(amount Amount, options SendOptions) (*PreparedS
 		// freeFn
 		func(handle C.uint64_t) {
 			C.ffi_cdk_ffi_rust_future_free_u64(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Fetch available onchain melt quote options.
+//
+// Each returned quote represents one selectable confirmation target/fee reserve.
+// Pass the chosen quote to `select_onchain_melt_quote`, then prepare and confirm
+// the returned quote ID through the normal melt flow.
+func (_self *Wallet) QuoteOnchainMeltOptions(address string, amount Amount, maxFeeAmount *Amount) ([]MeltQuote, error) {
+	_pointer := _self.ffiObject.incrementPointer("*Wallet")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) []MeltQuote {
+			return FfiConverterSequenceMeltQuoteINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_wallet_quote_onchain_melt_options(
+			_pointer, FfiConverterStringINSTANCE.Lower(address), FfiConverterAmountINSTANCE.Lower(amount), FfiConverterOptionalAmountINSTANCE.Lower(maxFeeAmount)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
 		},
 	)
 
@@ -7888,6 +6962,45 @@ func (_self *Wallet) ReceiveProofs(proofs []Proof, options ReceiveOptions, memo 
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_receive_proofs(
 			_pointer, FfiConverterSequenceProofINSTANCE.Lower(proofs), FfiConverterReceiveOptionsINSTANCE.Lower(options), FfiConverterOptionalStringINSTANCE.Lower(memo), FfiConverterOptionalStringINSTANCE.Lower(token)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Recover from incomplete wallet sagas after a crash
+//
+// Handles interrupted swap, send, receive, issue, and melt operations. Requires
+// network access to the mint for states that need external status checks.
+func (_self *Wallet) RecoverIncompleteSagas() (RecoveryReport, error) {
+	_pointer := _self.ffiObject.incrementPointer("*Wallet")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) RecoveryReport {
+			return FfiConverterRecoveryReportINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_wallet_recover_incomplete_sagas(
+			_pointer),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
@@ -8009,6 +7122,42 @@ func (_self *Wallet) Restore() (Restored, error) {
 	return res, err
 }
 
+// Restore wallet from seed with custom NUT-13 options
+func (_self *Wallet) RestoreWithOpts(opts Nut13Options) (Restored, error) {
+	_pointer := _self.ffiObject.incrementPointer("*Wallet")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) Restored {
+			return FfiConverterRestoredINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_wallet_restore_with_opts(
+			_pointer, FfiConverterNut13OptionsINSTANCE.Lower(opts)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
 // Revert a transaction
 func (_self *Wallet) RevertTransaction(id TransactionId) error {
 	_pointer := _self.ffiObject.incrementPointer("*Wallet")
@@ -8060,6 +7209,42 @@ func (_self *Wallet) RevokeSend(operationId string) (Amount, error) {
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_revoke_send(
 			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Persist the selected onchain melt quote before preparing it.
+func (_self *Wallet) SelectOnchainMeltQuote(quote MeltQuote) (MeltQuote, error) {
+	_pointer := _self.ffiObject.incrementPointer("*Wallet")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) MeltQuote {
+			return FfiConverterMeltQuoteINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_wallet_select_onchain_melt_quote(
+			_pointer, FfiConverterMeltQuoteINSTANCE.Lower(quote)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
@@ -13500,1777 +12685,6 @@ func (c FfiConverterWalletDatabase) register() {
 	C.uniffi_cdk_ffi_fn_init_callback_vtable_walletdatabase(&UniffiVTableCallbackInterfaceWalletDatabaseINSTANCE)
 }
 
-type WalletPostgresDatabaseInterface interface {
-	AddKeys(keyset KeySet) error
-	AddMeltQuote(quote MeltQuote) error
-	AddMint(mintUrl MintUrl, mintInfo *MintInfo) error
-	AddMintKeysets(mintUrl MintUrl, keysets []KeySetInfo) error
-	AddMintQuote(quote MintQuote) error
-	AddP2pkKey(pubkey PublicKey, derivationPath string, derivationIndex uint32) error
-	AddSaga(sagaJson string) error
-	AddTransaction(transaction Transaction) error
-	DeleteSaga(id string) error
-	GetBalance(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState) (uint64, error)
-	GetIncompleteSagas() ([]string, error)
-	GetKeys(id Id) (*Keys, error)
-	GetKeysetById(keysetId Id) (*KeySetInfo, error)
-	GetMeltQuote(quoteId string) (*MeltQuote, error)
-	GetMeltQuotes() ([]MeltQuote, error)
-	GetMint(mintUrl MintUrl) (*MintInfo, error)
-	GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo, error)
-	GetMintQuote(quoteId string) (*MintQuote, error)
-	GetMintQuotes() ([]MintQuote, error)
-	GetMints() (map[MintUrl]*MintInfo, error)
-	GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, error)
-	GetProofs(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState, spendingConditions *[]SpendingConditions) ([]ProofInfo, error)
-	GetProofsByYs(ys []PublicKey) ([]ProofInfo, error)
-	GetReservedProofs(operationId string) ([]ProofInfo, error)
-	GetSaga(id string) (*string, error)
-	GetTransaction(transactionId TransactionId) (*Transaction, error)
-	GetUnissuedMintQuotes() ([]MintQuote, error)
-	IncrementKeysetCounter(keysetId Id, count uint32) (uint32, error)
-	KvList(primaryNamespace string, secondaryNamespace string) ([]string, error)
-	KvRead(primaryNamespace string, secondaryNamespace string, key string) (*[]byte, error)
-	KvRemove(primaryNamespace string, secondaryNamespace string, key string) error
-	KvWrite(primaryNamespace string, secondaryNamespace string, key string, value []byte) error
-	LatestP2pk() (*P2pkSigningKey, error)
-	ListP2pkKeys() ([]P2pkSigningKey, error)
-	ListTransactions(mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) ([]Transaction, error)
-	ReleaseMeltQuote(operationId string) error
-	ReleaseMintQuote(operationId string) error
-	ReleaseProofs(operationId string) error
-	RemoveKeys(id Id) error
-	RemoveMeltQuote(quoteId string) error
-	RemoveMint(mintUrl MintUrl) error
-	RemoveMintQuote(quoteId string) error
-	RemoveTransaction(transactionId TransactionId) error
-	ReserveMeltQuote(quoteId string, operationId string) error
-	ReserveMintQuote(quoteId string, operationId string) error
-	ReserveProofs(ys []PublicKey, operationId string) error
-	UpdateMintUrl(oldMintUrl MintUrl, newMintUrl MintUrl) error
-	UpdateProofs(added []ProofInfo, removedYs []PublicKey) error
-	UpdateProofsState(ys []PublicKey, state ProofState) error
-	UpdateSaga(sagaJson string) (bool, error)
-}
-type WalletPostgresDatabase struct {
-	ffiObject FfiObject
-}
-
-// Create a new Postgres-backed wallet database
-// Requires cdk-ffi to be built with feature "postgres".
-// Example URL:
-// "host=localhost user=test password=test dbname=testdb port=5433 schema=wallet sslmode=prefer"
-func NewWalletPostgresDatabase(url string) (*WalletPostgresDatabase, error) {
-	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
-		return C.uniffi_cdk_ffi_fn_constructor_walletpostgresdatabase_new(FfiConverterStringINSTANCE.Lower(url), _uniffiStatus)
-	})
-	if _uniffiErr != nil {
-		var _uniffiDefaultValue *WalletPostgresDatabase
-		return _uniffiDefaultValue, _uniffiErr
-	} else {
-		return FfiConverterWalletPostgresDatabaseINSTANCE.Lift(_uniffiRV), nil
-	}
-}
-
-func (_self *WalletPostgresDatabase) AddKeys(keyset KeySet) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_keys(
-			_pointer, FfiConverterKeySetINSTANCE.Lower(keyset)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) AddMeltQuote(quote MeltQuote) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_melt_quote(
-			_pointer, FfiConverterMeltQuoteINSTANCE.Lower(quote)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) AddMint(mintUrl MintUrl, mintInfo *MintInfo) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_mint(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalMintInfoINSTANCE.Lower(mintInfo)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) AddMintKeysets(mintUrl MintUrl, keysets []KeySetInfo) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_mint_keysets(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl), FfiConverterSequenceKeySetInfoINSTANCE.Lower(keysets)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) AddMintQuote(quote MintQuote) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_mint_quote(
-			_pointer, FfiConverterMintQuoteINSTANCE.Lower(quote)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) AddP2pkKey(pubkey PublicKey, derivationPath string, derivationIndex uint32) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_p2pk_key(
-			_pointer, FfiConverterPublicKeyINSTANCE.Lower(pubkey), FfiConverterStringINSTANCE.Lower(derivationPath), FfiConverterUint32INSTANCE.Lower(derivationIndex)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) AddSaga(sagaJson string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(sagaJson)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) AddTransaction(transaction Transaction) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_add_transaction(
-			_pointer, FfiConverterTransactionINSTANCE.Lower(transaction)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) DeleteSaga(id string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_delete_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) GetBalance(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState) (uint64, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.uint64_t) uint64 {
-			return FfiConverterUint64INSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_balance(
-			_pointer, FfiConverterOptionalMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalCurrencyUnitINSTANCE.Lower(unit), FfiConverterOptionalSequenceProofStateINSTANCE.Lower(state)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_u64(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetIncompleteSagas() ([]string, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []string {
-			return FfiConverterSequenceStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_incomplete_sagas(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetKeys(id Id) (*Keys, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *Keys {
-			return FfiConverterOptionalKeysINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_keys(
-			_pointer, FfiConverterIdINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetKeysetById(keysetId Id) (*KeySetInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *KeySetInfo {
-			return FfiConverterOptionalKeySetInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_keyset_by_id(
-			_pointer, FfiConverterIdINSTANCE.Lower(keysetId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetMeltQuote(quoteId string) (*MeltQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *MeltQuote {
-			return FfiConverterOptionalMeltQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetMeltQuotes() ([]MeltQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []MeltQuote {
-			return FfiConverterSequenceMeltQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_melt_quotes(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetMint(mintUrl MintUrl) (*MintInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *MintInfo {
-			return FfiConverterOptionalMintInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_mint(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *[]KeySetInfo {
-			return FfiConverterOptionalSequenceKeySetInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_mint_keysets(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetMintQuote(quoteId string) (*MintQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *MintQuote {
-			return FfiConverterOptionalMintQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetMintQuotes() ([]MintQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []MintQuote {
-			return FfiConverterSequenceMintQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_mint_quotes(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetMints() (map[MintUrl]*MintInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) map[MintUrl]*MintInfo {
-			return FfiConverterMapMintUrlOptionalMintInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_mints(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *P2pkSigningKey {
-			return FfiConverterOptionalP2pkSigningKeyINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_p2pk_key(
-			_pointer, FfiConverterPublicKeyINSTANCE.Lower(pubkey)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetProofs(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState, spendingConditions *[]SpendingConditions) ([]ProofInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []ProofInfo {
-			return FfiConverterSequenceProofInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_proofs(
-			_pointer, FfiConverterOptionalMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalCurrencyUnitINSTANCE.Lower(unit), FfiConverterOptionalSequenceProofStateINSTANCE.Lower(state), FfiConverterOptionalSequenceSpendingConditionsINSTANCE.Lower(spendingConditions)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetProofsByYs(ys []PublicKey) ([]ProofInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []ProofInfo {
-			return FfiConverterSequenceProofInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_proofs_by_ys(
-			_pointer, FfiConverterSequencePublicKeyINSTANCE.Lower(ys)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetReservedProofs(operationId string) ([]ProofInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []ProofInfo {
-			return FfiConverterSequenceProofInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_reserved_proofs(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetSaga(id string) (*string, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *string {
-			return FfiConverterOptionalStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetTransaction(transactionId TransactionId) (*Transaction, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *Transaction {
-			return FfiConverterOptionalTransactionINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_transaction(
-			_pointer, FfiConverterTransactionIdINSTANCE.Lower(transactionId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) GetUnissuedMintQuotes() ([]MintQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []MintQuote {
-			return FfiConverterSequenceMintQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_get_unissued_mint_quotes(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) IncrementKeysetCounter(keysetId Id, count uint32) (uint32, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.uint32_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_u32(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.uint32_t) uint32 {
-			return FfiConverterUint32INSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_increment_keyset_counter(
-			_pointer, FfiConverterIdINSTANCE.Lower(keysetId), FfiConverterUint32INSTANCE.Lower(count)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_u32(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_u32(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) KvList(primaryNamespace string, secondaryNamespace string) ([]string, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []string {
-			return FfiConverterSequenceStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_kv_list(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) KvRead(primaryNamespace string, secondaryNamespace string, key string) (*[]byte, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *[]byte {
-			return FfiConverterOptionalBytesINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_kv_read(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace), FfiConverterStringINSTANCE.Lower(key)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) KvRemove(primaryNamespace string, secondaryNamespace string, key string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_kv_remove(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace), FfiConverterStringINSTANCE.Lower(key)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) KvWrite(primaryNamespace string, secondaryNamespace string, key string, value []byte) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_kv_write(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace), FfiConverterStringINSTANCE.Lower(key), FfiConverterBytesINSTANCE.Lower(value)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) LatestP2pk() (*P2pkSigningKey, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *P2pkSigningKey {
-			return FfiConverterOptionalP2pkSigningKeyINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_latest_p2pk(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) ListP2pkKeys() ([]P2pkSigningKey, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []P2pkSigningKey {
-			return FfiConverterSequenceP2pkSigningKeyINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_list_p2pk_keys(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) ListTransactions(mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) ([]Transaction, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []Transaction {
-			return FfiConverterSequenceTransactionINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_list_transactions(
-			_pointer, FfiConverterOptionalMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalTransactionDirectionINSTANCE.Lower(direction), FfiConverterOptionalCurrencyUnitINSTANCE.Lower(unit)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletPostgresDatabase) ReleaseMeltQuote(operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_release_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) ReleaseMintQuote(operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_release_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) ReleaseProofs(operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_release_proofs(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) RemoveKeys(id Id) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_remove_keys(
-			_pointer, FfiConverterIdINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) RemoveMeltQuote(quoteId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_remove_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) RemoveMint(mintUrl MintUrl) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_remove_mint(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) RemoveMintQuote(quoteId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_remove_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) RemoveTransaction(transactionId TransactionId) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_remove_transaction(
-			_pointer, FfiConverterTransactionIdINSTANCE.Lower(transactionId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) ReserveMeltQuote(quoteId string, operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_reserve_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId), FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) ReserveMintQuote(quoteId string, operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_reserve_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId), FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) ReserveProofs(ys []PublicKey, operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_reserve_proofs(
-			_pointer, FfiConverterSequencePublicKeyINSTANCE.Lower(ys), FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) UpdateMintUrl(oldMintUrl MintUrl, newMintUrl MintUrl) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_update_mint_url(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(oldMintUrl), FfiConverterMintUrlINSTANCE.Lower(newMintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) UpdateProofs(added []ProofInfo, removedYs []PublicKey) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_update_proofs(
-			_pointer, FfiConverterSequenceProofInfoINSTANCE.Lower(added), FfiConverterSequencePublicKeyINSTANCE.Lower(removedYs)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) UpdateProofsState(ys []PublicKey, state ProofState) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_update_proofs_state(
-			_pointer, FfiConverterSequencePublicKeyINSTANCE.Lower(ys), FfiConverterProofStateINSTANCE.Lower(state)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletPostgresDatabase) UpdateSaga(sagaJson string) (bool, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.int8_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_i8(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.int8_t) bool {
-			return FfiConverterBoolINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletpostgresdatabase_update_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(sagaJson)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_i8(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_i8(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-func (object *WalletPostgresDatabase) Destroy() {
-	runtime.SetFinalizer(object, nil)
-	object.ffiObject.destroy()
-}
-
-type FfiConverterWalletPostgresDatabase struct{}
-
-var FfiConverterWalletPostgresDatabaseINSTANCE = FfiConverterWalletPostgresDatabase{}
-
-func (c FfiConverterWalletPostgresDatabase) Lift(handle C.uint64_t) *WalletPostgresDatabase {
-	result := &WalletPostgresDatabase{
-		newFfiObject(
-			handle,
-			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
-				return C.uniffi_cdk_ffi_fn_clone_walletpostgresdatabase(handle, status)
-			},
-			func(handle C.uint64_t, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_walletpostgresdatabase(handle, status)
-			},
-		),
-	}
-	runtime.SetFinalizer(result, (*WalletPostgresDatabase).Destroy)
-	return result
-}
-
-func (c FfiConverterWalletPostgresDatabase) Read(reader io.Reader) *WalletPostgresDatabase {
-	return c.Lift(C.uint64_t(readUint64(reader)))
-}
-
-func (c FfiConverterWalletPostgresDatabase) Lower(value *WalletPostgresDatabase) C.uint64_t {
-	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the handle will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked handle.
-	handle := value.ffiObject.incrementPointer("*WalletPostgresDatabase")
-	defer value.ffiObject.decrementPointer()
-	return handle
-}
-
-func (c FfiConverterWalletPostgresDatabase) Write(writer io.Writer, value *WalletPostgresDatabase) {
-	writeUint64(writer, uint64(c.Lower(value)))
-}
-
-func LiftFromExternalWalletPostgresDatabase(handle uint64) *WalletPostgresDatabase {
-	return FfiConverterWalletPostgresDatabaseINSTANCE.Lift(C.uint64_t(handle))
-}
-
-func LowerToExternalWalletPostgresDatabase(value *WalletPostgresDatabase) uint64 {
-	return uint64(FfiConverterWalletPostgresDatabaseINSTANCE.Lower(value))
-}
-
-type FfiDestroyerWalletPostgresDatabase struct{}
-
-func (_ FfiDestroyerWalletPostgresDatabase) Destroy(value *WalletPostgresDatabase) {
-	value.Destroy()
-}
-
 // FFI-compatible WalletRepository
 type WalletRepositoryInterface interface {
 	// Add a mint to this WalletRepository
@@ -17455,2263 +14869,6 @@ func (_ FfiDestroyerWalletSqliteDatabase) Destroy(value *WalletSqliteDatabase) {
 	value.Destroy()
 }
 
-// FFI wrapper for Supabase wallet database
-//
-// This database uses two types of authentication:
-// - `api_key`: The Supabase project API key (required, used in `apikey` header)
-// - `jwt_token`: An optional JWT token for user authentication (used in `Authorization: Bearer` header)
-//
-// When `jwt_token` is set, requests will include both headers:
-// - `apikey: <api_key>`
-// - `Authorization: Bearer <jwt_token>`
-//
-// When `jwt_token` is not set, the `api_key` is used for both headers (legacy behavior).
-type WalletSupabaseDatabaseInterface interface {
-	AddKeys(keyset KeySet) error
-	AddMeltQuote(quote MeltQuote) error
-	AddMint(mintUrl MintUrl, mintInfo *MintInfo) error
-	AddMintKeysets(mintUrl MintUrl, keysets []KeySetInfo) error
-	AddMintQuote(quote MintQuote) error
-	AddP2pkKey(pubkey PublicKey, derivationPath string, derivationIndex uint32) error
-	AddSaga(sagaJson string) error
-	AddTransaction(transaction Transaction) error
-	// Call a Supabase RPC function
-	//
-	// This allows calling any custom PostgreSQL function exposed via Supabase's PostgREST API.
-	//
-	// # Arguments
-	// * `function_name` - The name of the RPC function to call (e.g., "my_function")
-	// * `params_json` - JSON string containing the function parameters (e.g., `{"arg1": "value"}`)
-	//
-	// # Returns
-	// The raw JSON response from Supabase as a string
-	//
-	// # Errors
-	// Returns an error if:
-	// - The params_json is not valid JSON
-	// - The HTTP request fails
-	// - The RPC function returns an error status
-	// ```
-	CallRpc(functionName string, paramsJson string) (string, error)
-	// Check that the database schema is compatible with this SDK version
-	//
-	// Call this after authentication and before using the database. It verifies
-	// that the database has been set up with the required schema version.
-	//
-	// Returns an error if:
-	// - The database has not been initialized (no schema_info table)
-	// - The database schema version is older than what this SDK requires
-	//
-	// If this returns an error, an administrator must run migrations before
-	// the client can use the database.
-	CheckSchemaCompatibility() error
-	DeleteSaga(id string) error
-	GetBalance(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState) (uint64, error)
-	GetIncompleteSagas() ([]string, error)
-	// Get the current JWT token if set
-	GetJwtToken() *string
-	GetKeys(id Id) (*Keys, error)
-	GetKeysetById(keysetId Id) (*KeySetInfo, error)
-	GetMeltQuote(quoteId string) (*MeltQuote, error)
-	GetMeltQuotes() ([]MeltQuote, error)
-	GetMint(mintUrl MintUrl) (*MintInfo, error)
-	GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo, error)
-	GetMintQuote(quoteId string) (*MintQuote, error)
-	GetMintQuotes() ([]MintQuote, error)
-	GetMints() (map[MintUrl]*MintInfo, error)
-	GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, error)
-	GetProofs(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState, spendingConditions *[]SpendingConditions) ([]ProofInfo, error)
-	GetProofsByYs(ys []PublicKey) ([]ProofInfo, error)
-	GetReservedProofs(operationId string) ([]ProofInfo, error)
-	GetSaga(id string) (*string, error)
-	GetTransaction(transactionId TransactionId) (*Transaction, error)
-	GetUnissuedMintQuotes() ([]MintQuote, error)
-	IncrementKeysetCounter(keysetId Id, count uint32) (uint32, error)
-	KvList(primaryNamespace string, secondaryNamespace string) ([]string, error)
-	KvRead(primaryNamespace string, secondaryNamespace string, key string) (*[]byte, error)
-	KvRemove(primaryNamespace string, secondaryNamespace string, key string) error
-	KvWrite(primaryNamespace string, secondaryNamespace string, key string, value []byte) error
-	LatestP2pk() (*P2pkSigningKey, error)
-	ListP2pkKeys() ([]P2pkSigningKey, error)
-	ListTransactions(mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) ([]Transaction, error)
-	// Refresh the access token using the stored refresh token
-	//
-	// This requires both an OIDC client and a refresh token to be set.
-	// On success, the JWT token and expiration are automatically updated.
-	//
-	// Returns an error if:
-	// - No OIDC client is configured
-	// - No refresh token is set
-	// - The refresh token request fails
-	RefreshAccessToken() error
-	ReleaseMeltQuote(operationId string) error
-	ReleaseMintQuote(operationId string) error
-	ReleaseProofs(operationId string) error
-	RemoveKeys(id Id) error
-	RemoveMeltQuote(quoteId string) error
-	RemoveMint(mintUrl MintUrl) error
-	RemoveMintQuote(quoteId string) error
-	RemoveTransaction(transactionId TransactionId) error
-	ReserveMeltQuote(quoteId string, operationId string) error
-	ReserveMintQuote(quoteId string, operationId string) error
-	ReserveProofs(ys []PublicKey, operationId string) error
-	// Derives an AES-256-GCM encryption key from `password`.
-	//
-	// The current API does not take a separate salt parameter.
-	SetEncryptionPassword(password string)
-	// Set or update the JWT token for authentication
-	SetJwtToken(token *string)
-	// Set the refresh token for automatic token refresh
-	SetRefreshToken(token *string)
-	// Sign in a user and automatically set tokens on the database instance
-	Signin(email string, password string) (AuthResponse, error)
-	// Sign up a new user and automatically set tokens if returned
-	Signup(email string, password string) (AuthResponse, error)
-	UpdateMintUrl(oldMintUrl MintUrl, newMintUrl MintUrl) error
-	UpdateProofs(added []ProofInfo, removedYs []PublicKey) error
-	UpdateProofsState(ys []PublicKey, state ProofState) error
-	UpdateSaga(sagaJson string) (bool, error)
-}
-
-// FFI wrapper for Supabase wallet database
-//
-// This database uses two types of authentication:
-// - `api_key`: The Supabase project API key (required, used in `apikey` header)
-// - `jwt_token`: An optional JWT token for user authentication (used in `Authorization: Bearer` header)
-//
-// When `jwt_token` is set, requests will include both headers:
-// - `apikey: <api_key>`
-// - `Authorization: Bearer <jwt_token>`
-//
-// When `jwt_token` is not set, the `api_key` is used for both headers (legacy behavior).
-type WalletSupabaseDatabase struct {
-	ffiObject FfiObject
-}
-
-// Create a new WalletSupabaseDatabase with API key only (legacy behavior)
-//
-// No automatic token refresh is configured. Use `set_jwt_token` to manually
-// set tokens, or use one of the other constructors for automatic refresh.
-func NewWalletSupabaseDatabase(url string, apiKey string) (*WalletSupabaseDatabase, error) {
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.uint64_t) *WalletSupabaseDatabase {
-			return FfiConverterWalletSupabaseDatabaseINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_constructor_walletsupabasedatabase_new(FfiConverterStringINSTANCE.Lower(url), FfiConverterStringINSTANCE.Lower(apiKey)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_u64(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-// Create a new WalletSupabaseDatabase with external OIDC provider for automatic token refresh
-//
-// This uses an external OIDC provider (e.g., Keycloak, Auth0) for token refresh.
-// The OIDC provider must be configured in Supabase's JWT settings to validate the tokens.
-func WalletSupabaseDatabaseWithOidc(url string, apiKey string, openidDiscovery string, clientId *string) (*WalletSupabaseDatabase, error) {
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.uint64_t) *WalletSupabaseDatabase {
-			return FfiConverterWalletSupabaseDatabaseINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_constructor_walletsupabasedatabase_with_oidc(FfiConverterStringINSTANCE.Lower(url), FfiConverterStringINSTANCE.Lower(apiKey), FfiConverterStringINSTANCE.Lower(openidDiscovery), FfiConverterOptionalStringINSTANCE.Lower(clientId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_u64(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-// Create a new WalletSupabaseDatabase with Supabase Auth for automatic token refresh
-//
-// This uses Supabase's built-in GoTrue authentication system.
-// After creation, call `set_jwt_token()` and `set_refresh_token()` with tokens
-// obtained from Supabase Auth sign-in. Token refresh will use Supabase's
-// `/auth/v1/token` endpoint automatically.
-func WalletSupabaseDatabaseWithSupabaseAuth(url string, apiKey string) (*WalletSupabaseDatabase, error) {
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.uint64_t) *WalletSupabaseDatabase {
-			return FfiConverterWalletSupabaseDatabaseINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_constructor_walletsupabasedatabase_with_supabase_auth(FfiConverterStringINSTANCE.Lower(url), FfiConverterStringINSTANCE.Lower(apiKey)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_u64(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) AddKeys(keyset KeySet) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_keys(
-			_pointer, FfiConverterKeySetINSTANCE.Lower(keyset)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) AddMeltQuote(quote MeltQuote) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_melt_quote(
-			_pointer, FfiConverterMeltQuoteINSTANCE.Lower(quote)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) AddMint(mintUrl MintUrl, mintInfo *MintInfo) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_mint(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalMintInfoINSTANCE.Lower(mintInfo)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) AddMintKeysets(mintUrl MintUrl, keysets []KeySetInfo) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_mint_keysets(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl), FfiConverterSequenceKeySetInfoINSTANCE.Lower(keysets)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) AddMintQuote(quote MintQuote) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_mint_quote(
-			_pointer, FfiConverterMintQuoteINSTANCE.Lower(quote)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) AddP2pkKey(pubkey PublicKey, derivationPath string, derivationIndex uint32) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_p2pk_key(
-			_pointer, FfiConverterPublicKeyINSTANCE.Lower(pubkey), FfiConverterStringINSTANCE.Lower(derivationPath), FfiConverterUint32INSTANCE.Lower(derivationIndex)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) AddSaga(sagaJson string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(sagaJson)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) AddTransaction(transaction Transaction) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_add_transaction(
-			_pointer, FfiConverterTransactionINSTANCE.Lower(transaction)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-// Call a Supabase RPC function
-//
-// This allows calling any custom PostgreSQL function exposed via Supabase's PostgREST API.
-//
-// # Arguments
-// * `function_name` - The name of the RPC function to call (e.g., "my_function")
-// * `params_json` - JSON string containing the function parameters (e.g., `{"arg1": "value"}`)
-//
-// # Returns
-// The raw JSON response from Supabase as a string
-//
-// # Errors
-// Returns an error if:
-// - The params_json is not valid JSON
-// - The HTTP request fails
-// - The RPC function returns an error status
-// ```
-func (_self *WalletSupabaseDatabase) CallRpc(functionName string, paramsJson string) (string, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) string {
-			return FfiConverterStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_call_rpc(
-			_pointer, FfiConverterStringINSTANCE.Lower(functionName), FfiConverterStringINSTANCE.Lower(paramsJson)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-// Check that the database schema is compatible with this SDK version
-//
-// Call this after authentication and before using the database. It verifies
-// that the database has been set up with the required schema version.
-//
-// Returns an error if:
-// - The database has not been initialized (no schema_info table)
-// - The database schema version is older than what this SDK requires
-//
-// If this returns an error, an administrator must run migrations before
-// the client can use the database.
-func (_self *WalletSupabaseDatabase) CheckSchemaCompatibility() error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_check_schema_compatibility(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) DeleteSaga(id string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_delete_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) GetBalance(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState) (uint64, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_u64(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.uint64_t) uint64 {
-			return FfiConverterUint64INSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_balance(
-			_pointer, FfiConverterOptionalMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalCurrencyUnitINSTANCE.Lower(unit), FfiConverterOptionalSequenceProofStateINSTANCE.Lower(state)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_u64(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_u64(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetIncompleteSagas() ([]string, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []string {
-			return FfiConverterSequenceStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_incomplete_sagas(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-// Get the current JWT token if set
-func (_self *WalletSupabaseDatabase) GetJwtToken() *string {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, _ := uniffiRustCallAsync[error](
-		nil,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *string {
-			return FfiConverterOptionalStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_jwt_token(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	return res
-}
-
-func (_self *WalletSupabaseDatabase) GetKeys(id Id) (*Keys, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *Keys {
-			return FfiConverterOptionalKeysINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_keys(
-			_pointer, FfiConverterIdINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetKeysetById(keysetId Id) (*KeySetInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *KeySetInfo {
-			return FfiConverterOptionalKeySetInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_keyset_by_id(
-			_pointer, FfiConverterIdINSTANCE.Lower(keysetId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetMeltQuote(quoteId string) (*MeltQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *MeltQuote {
-			return FfiConverterOptionalMeltQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetMeltQuotes() ([]MeltQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []MeltQuote {
-			return FfiConverterSequenceMeltQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_melt_quotes(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetMint(mintUrl MintUrl) (*MintInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *MintInfo {
-			return FfiConverterOptionalMintInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_mint(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetMintKeysets(mintUrl MintUrl) (*[]KeySetInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *[]KeySetInfo {
-			return FfiConverterOptionalSequenceKeySetInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_mint_keysets(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetMintQuote(quoteId string) (*MintQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *MintQuote {
-			return FfiConverterOptionalMintQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetMintQuotes() ([]MintQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []MintQuote {
-			return FfiConverterSequenceMintQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_mint_quotes(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetMints() (map[MintUrl]*MintInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) map[MintUrl]*MintInfo {
-			return FfiConverterMapMintUrlOptionalMintInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_mints(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetP2pkKey(pubkey PublicKey) (*P2pkSigningKey, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *P2pkSigningKey {
-			return FfiConverterOptionalP2pkSigningKeyINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_p2pk_key(
-			_pointer, FfiConverterPublicKeyINSTANCE.Lower(pubkey)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetProofs(mintUrl *MintUrl, unit *CurrencyUnit, state *[]ProofState, spendingConditions *[]SpendingConditions) ([]ProofInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []ProofInfo {
-			return FfiConverterSequenceProofInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_proofs(
-			_pointer, FfiConverterOptionalMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalCurrencyUnitINSTANCE.Lower(unit), FfiConverterOptionalSequenceProofStateINSTANCE.Lower(state), FfiConverterOptionalSequenceSpendingConditionsINSTANCE.Lower(spendingConditions)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetProofsByYs(ys []PublicKey) ([]ProofInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []ProofInfo {
-			return FfiConverterSequenceProofInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_proofs_by_ys(
-			_pointer, FfiConverterSequencePublicKeyINSTANCE.Lower(ys)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetReservedProofs(operationId string) ([]ProofInfo, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []ProofInfo {
-			return FfiConverterSequenceProofInfoINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_reserved_proofs(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetSaga(id string) (*string, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *string {
-			return FfiConverterOptionalStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetTransaction(transactionId TransactionId) (*Transaction, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *Transaction {
-			return FfiConverterOptionalTransactionINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_transaction(
-			_pointer, FfiConverterTransactionIdINSTANCE.Lower(transactionId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) GetUnissuedMintQuotes() ([]MintQuote, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []MintQuote {
-			return FfiConverterSequenceMintQuoteINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_get_unissued_mint_quotes(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) IncrementKeysetCounter(keysetId Id, count uint32) (uint32, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.uint32_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_u32(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.uint32_t) uint32 {
-			return FfiConverterUint32INSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_increment_keyset_counter(
-			_pointer, FfiConverterIdINSTANCE.Lower(keysetId), FfiConverterUint32INSTANCE.Lower(count)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_u32(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_u32(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) KvList(primaryNamespace string, secondaryNamespace string) ([]string, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []string {
-			return FfiConverterSequenceStringINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_kv_list(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) KvRead(primaryNamespace string, secondaryNamespace string, key string) (*[]byte, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *[]byte {
-			return FfiConverterOptionalBytesINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_kv_read(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace), FfiConverterStringINSTANCE.Lower(key)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) KvRemove(primaryNamespace string, secondaryNamespace string, key string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_kv_remove(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace), FfiConverterStringINSTANCE.Lower(key)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) KvWrite(primaryNamespace string, secondaryNamespace string, key string, value []byte) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_kv_write(
-			_pointer, FfiConverterStringINSTANCE.Lower(primaryNamespace), FfiConverterStringINSTANCE.Lower(secondaryNamespace), FfiConverterStringINSTANCE.Lower(key), FfiConverterBytesINSTANCE.Lower(value)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) LatestP2pk() (*P2pkSigningKey, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) *P2pkSigningKey {
-			return FfiConverterOptionalP2pkSigningKeyINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_latest_p2pk(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) ListP2pkKeys() ([]P2pkSigningKey, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []P2pkSigningKey {
-			return FfiConverterSequenceP2pkSigningKeyINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_list_p2pk_keys(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) ListTransactions(mintUrl *MintUrl, direction *TransactionDirection, unit *CurrencyUnit) ([]Transaction, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) []Transaction {
-			return FfiConverterSequenceTransactionINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_list_transactions(
-			_pointer, FfiConverterOptionalMintUrlINSTANCE.Lower(mintUrl), FfiConverterOptionalTransactionDirectionINSTANCE.Lower(direction), FfiConverterOptionalCurrencyUnitINSTANCE.Lower(unit)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-// Refresh the access token using the stored refresh token
-//
-// This requires both an OIDC client and a refresh token to be set.
-// On success, the JWT token and expiration are automatically updated.
-//
-// Returns an error if:
-// - No OIDC client is configured
-// - No refresh token is set
-// - The refresh token request fails
-func (_self *WalletSupabaseDatabase) RefreshAccessToken() error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_refresh_access_token(
-			_pointer),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) ReleaseMeltQuote(operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_release_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) ReleaseMintQuote(operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_release_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) ReleaseProofs(operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_release_proofs(
-			_pointer, FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) RemoveKeys(id Id) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_remove_keys(
-			_pointer, FfiConverterIdINSTANCE.Lower(id)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) RemoveMeltQuote(quoteId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_remove_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) RemoveMint(mintUrl MintUrl) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_remove_mint(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(mintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) RemoveMintQuote(quoteId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_remove_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) RemoveTransaction(transactionId TransactionId) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_remove_transaction(
-			_pointer, FfiConverterTransactionIdINSTANCE.Lower(transactionId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) ReserveMeltQuote(quoteId string, operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_reserve_melt_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId), FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) ReserveMintQuote(quoteId string, operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_reserve_mint_quote(
-			_pointer, FfiConverterStringINSTANCE.Lower(quoteId), FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) ReserveProofs(ys []PublicKey, operationId string) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_reserve_proofs(
-			_pointer, FfiConverterSequencePublicKeyINSTANCE.Lower(ys), FfiConverterStringINSTANCE.Lower(operationId)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-// Derives an AES-256-GCM encryption key from `password`.
-//
-// The current API does not take a separate salt parameter.
-func (_self *WalletSupabaseDatabase) SetEncryptionPassword(password string) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	uniffiRustCallAsync[error](
-		nil,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_set_encryption_password(
-			_pointer, FfiConverterStringINSTANCE.Lower(password)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-}
-
-// Set or update the JWT token for authentication
-func (_self *WalletSupabaseDatabase) SetJwtToken(token *string) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	uniffiRustCallAsync[error](
-		nil,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_set_jwt_token(
-			_pointer, FfiConverterOptionalStringINSTANCE.Lower(token)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-}
-
-// Set the refresh token for automatic token refresh
-func (_self *WalletSupabaseDatabase) SetRefreshToken(token *string) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	uniffiRustCallAsync[error](
-		nil,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_set_refresh_token(
-			_pointer, FfiConverterOptionalStringINSTANCE.Lower(token)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-}
-
-// Sign in a user and automatically set tokens on the database instance
-func (_self *WalletSupabaseDatabase) Signin(email string, password string) (AuthResponse, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) AuthResponse {
-			return FfiConverterAuthResponseINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_signin(
-			_pointer, FfiConverterStringINSTANCE.Lower(email), FfiConverterStringINSTANCE.Lower(password)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-// Sign up a new user and automatically set tokens if returned
-func (_self *WalletSupabaseDatabase) Signup(email string, password string) (AuthResponse, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) AuthResponse {
-			return FfiConverterAuthResponseINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_signup(
-			_pointer, FfiConverterStringINSTANCE.Lower(email), FfiConverterStringINSTANCE.Lower(password)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-func (_self *WalletSupabaseDatabase) UpdateMintUrl(oldMintUrl MintUrl, newMintUrl MintUrl) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_update_mint_url(
-			_pointer, FfiConverterMintUrlINSTANCE.Lower(oldMintUrl), FfiConverterMintUrlINSTANCE.Lower(newMintUrl)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) UpdateProofs(added []ProofInfo, removedYs []PublicKey) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_update_proofs(
-			_pointer, FfiConverterSequenceProofInfoINSTANCE.Lower(added), FfiConverterSequencePublicKeyINSTANCE.Lower(removedYs)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) UpdateProofsState(ys []PublicKey, state ProofState) error {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	_, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
-			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
-			return struct{}{}
-		},
-		// liftFn
-		func(_ struct{}) struct{} { return struct{}{} },
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_update_proofs_state(
-			_pointer, FfiConverterSequencePublicKeyINSTANCE.Lower(ys), FfiConverterProofStateINSTANCE.Lower(state)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_void(handle)
-		},
-	)
-
-	if err == nil {
-		return nil
-	}
-
-	return err
-}
-
-func (_self *WalletSupabaseDatabase) UpdateSaga(sagaJson string) (bool, error) {
-	_pointer := _self.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer _self.ffiObject.decrementPointer()
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) C.int8_t {
-			res := C.ffi_cdk_ffi_rust_future_complete_i8(handle, status)
-			return res
-		},
-		// liftFn
-		func(ffi C.int8_t) bool {
-			return FfiConverterBoolINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_method_walletsupabasedatabase_update_saga(
-			_pointer, FfiConverterStringINSTANCE.Lower(sagaJson)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_i8(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_i8(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-func (object *WalletSupabaseDatabase) Destroy() {
-	runtime.SetFinalizer(object, nil)
-	object.ffiObject.destroy()
-}
-
-type FfiConverterWalletSupabaseDatabase struct{}
-
-var FfiConverterWalletSupabaseDatabaseINSTANCE = FfiConverterWalletSupabaseDatabase{}
-
-func (c FfiConverterWalletSupabaseDatabase) Lift(handle C.uint64_t) *WalletSupabaseDatabase {
-	result := &WalletSupabaseDatabase{
-		newFfiObject(
-			handle,
-			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
-				return C.uniffi_cdk_ffi_fn_clone_walletsupabasedatabase(handle, status)
-			},
-			func(handle C.uint64_t, status *C.RustCallStatus) {
-				C.uniffi_cdk_ffi_fn_free_walletsupabasedatabase(handle, status)
-			},
-		),
-	}
-	runtime.SetFinalizer(result, (*WalletSupabaseDatabase).Destroy)
-	return result
-}
-
-func (c FfiConverterWalletSupabaseDatabase) Read(reader io.Reader) *WalletSupabaseDatabase {
-	return c.Lift(C.uint64_t(readUint64(reader)))
-}
-
-func (c FfiConverterWalletSupabaseDatabase) Lower(value *WalletSupabaseDatabase) C.uint64_t {
-	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
-	// because the handle will be decremented immediately after this function returns,
-	// and someone will be left holding onto a non-locked handle.
-	handle := value.ffiObject.incrementPointer("*WalletSupabaseDatabase")
-	defer value.ffiObject.decrementPointer()
-	return handle
-}
-
-func (c FfiConverterWalletSupabaseDatabase) Write(writer io.Writer, value *WalletSupabaseDatabase) {
-	writeUint64(writer, uint64(c.Lower(value)))
-}
-
-func LiftFromExternalWalletSupabaseDatabase(handle uint64) *WalletSupabaseDatabase {
-	return FfiConverterWalletSupabaseDatabaseINSTANCE.Lift(C.uint64_t(handle))
-}
-
-func LowerToExternalWalletSupabaseDatabase(value *WalletSupabaseDatabase) uint64 {
-	return uint64(FfiConverterWalletSupabaseDatabaseINSTANCE.Lower(value))
-}
-
-type FfiDestroyerWalletSupabaseDatabase struct{}
-
-func (_ FfiDestroyerWalletSupabaseDatabase) Destroy(value *WalletSupabaseDatabase) {
-	value.Destroy()
-}
-
 // FFI-compatible Amount type
 type Amount struct {
 	Value uint64
@@ -19807,64 +14964,6 @@ func (c FfiConverterAuthProof) Write(writer io.Writer, value AuthProof) {
 type FfiDestroyerAuthProof struct{}
 
 func (_ FfiDestroyerAuthProof) Destroy(value AuthProof) {
-	value.Destroy()
-}
-
-// Response from Supabase Auth sign-up/sign-in
-type AuthResponse struct {
-	AccessToken  string
-	TokenType    string
-	ExpiresIn    *int64
-	RefreshToken *string
-	// User details as a JSON string
-	UserJson string
-}
-
-func (r *AuthResponse) Destroy() {
-	FfiDestroyerString{}.Destroy(r.AccessToken)
-	FfiDestroyerString{}.Destroy(r.TokenType)
-	FfiDestroyerOptionalInt64{}.Destroy(r.ExpiresIn)
-	FfiDestroyerOptionalString{}.Destroy(r.RefreshToken)
-	FfiDestroyerString{}.Destroy(r.UserJson)
-}
-
-type FfiConverterAuthResponse struct{}
-
-var FfiConverterAuthResponseINSTANCE = FfiConverterAuthResponse{}
-
-func (c FfiConverterAuthResponse) Lift(rb RustBufferI) AuthResponse {
-	return LiftFromRustBuffer[AuthResponse](c, rb)
-}
-
-func (c FfiConverterAuthResponse) Read(reader io.Reader) AuthResponse {
-	return AuthResponse{
-		FfiConverterStringINSTANCE.Read(reader),
-		FfiConverterStringINSTANCE.Read(reader),
-		FfiConverterOptionalInt64INSTANCE.Read(reader),
-		FfiConverterOptionalStringINSTANCE.Read(reader),
-		FfiConverterStringINSTANCE.Read(reader),
-	}
-}
-
-func (c FfiConverterAuthResponse) Lower(value AuthResponse) C.RustBuffer {
-	return LowerIntoRustBuffer[AuthResponse](c, value)
-}
-
-func (c FfiConverterAuthResponse) LowerExternal(value AuthResponse) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[AuthResponse](c, value))
-}
-
-func (c FfiConverterAuthResponse) Write(writer io.Writer, value AuthResponse) {
-	FfiConverterStringINSTANCE.Write(writer, value.AccessToken)
-	FfiConverterStringINSTANCE.Write(writer, value.TokenType)
-	FfiConverterOptionalInt64INSTANCE.Write(writer, value.ExpiresIn)
-	FfiConverterOptionalStringINSTANCE.Write(writer, value.RefreshToken)
-	FfiConverterStringINSTANCE.Write(writer, value.UserJson)
-}
-
-type FfiDestroyerAuthResponse struct{}
-
-func (_ FfiDestroyerAuthResponse) Destroy(value AuthResponse) {
 	value.Destroy()
 }
 
@@ -20244,6 +15343,8 @@ type CreateRequestParams struct {
 	HttpUrl *string
 	// Nostr relay URLs (required if transport is "nostr")
 	NostrRelays *[]string
+	// Optional list of mint URLs the receiver trusts. If not provided, the wallet's current mints for the requested unit will be used.
+	Mints *[]string
 }
 
 func (r *CreateRequestParams) Destroy() {
@@ -20257,6 +15358,7 @@ func (r *CreateRequestParams) Destroy() {
 	FfiDestroyerString{}.Destroy(r.Transport)
 	FfiDestroyerOptionalString{}.Destroy(r.HttpUrl)
 	FfiDestroyerOptionalSequenceString{}.Destroy(r.NostrRelays)
+	FfiDestroyerOptionalSequenceString{}.Destroy(r.Mints)
 }
 
 type FfiConverterCreateRequestParams struct{}
@@ -20278,6 +15380,7 @@ func (c FfiConverterCreateRequestParams) Read(reader io.Reader) CreateRequestPar
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalSequenceStringINSTANCE.Read(reader),
 		FfiConverterOptionalSequenceStringINSTANCE.Read(reader),
 	}
 }
@@ -20301,6 +15404,7 @@ func (c FfiConverterCreateRequestParams) Write(writer io.Writer, value CreateReq
 	FfiConverterStringINSTANCE.Write(writer, value.Transport)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.HttpUrl)
 	FfiConverterOptionalSequenceStringINSTANCE.Write(writer, value.NostrRelays)
+	FfiConverterOptionalSequenceStringINSTANCE.Write(writer, value.Mints)
 }
 
 type FfiDestroyerCreateRequestParams struct{}
@@ -20857,8 +15961,12 @@ type MeltQuote struct {
 	State QuoteState
 	// Expiry timestamp
 	Expiry uint64
-	// Payment preimage
-	PaymentPreimage *string
+	// Payment proof (e.g. Lightning preimage or onchain outpoint)
+	PaymentProof *string
+	// Estimated confirmation target in blocks for onchain quotes
+	EstimatedBlocks *uint32
+	// Selected fee option index for onchain quotes
+	FeeIndex *uint32
 	// Payment method
 	PaymentMethod PaymentMethod
 	// Operation ID that reserved this quote
@@ -20876,7 +15984,9 @@ func (r *MeltQuote) Destroy() {
 	FfiDestroyerAmount{}.Destroy(r.FeeReserve)
 	FfiDestroyerQuoteState{}.Destroy(r.State)
 	FfiDestroyerUint64{}.Destroy(r.Expiry)
-	FfiDestroyerOptionalString{}.Destroy(r.PaymentPreimage)
+	FfiDestroyerOptionalString{}.Destroy(r.PaymentProof)
+	FfiDestroyerOptionalUint32{}.Destroy(r.EstimatedBlocks)
+	FfiDestroyerOptionalUint32{}.Destroy(r.FeeIndex)
 	FfiDestroyerPaymentMethod{}.Destroy(r.PaymentMethod)
 	FfiDestroyerOptionalString{}.Destroy(r.UsedByOperation)
 	FfiDestroyerUint32{}.Destroy(r.Version)
@@ -20901,6 +16011,8 @@ func (c FfiConverterMeltQuote) Read(reader io.Reader) MeltQuote {
 		FfiConverterQuoteStateINSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
 		FfiConverterPaymentMethodINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterUint32INSTANCE.Read(reader),
@@ -20924,7 +16036,9 @@ func (c FfiConverterMeltQuote) Write(writer io.Writer, value MeltQuote) {
 	FfiConverterAmountINSTANCE.Write(writer, value.FeeReserve)
 	FfiConverterQuoteStateINSTANCE.Write(writer, value.State)
 	FfiConverterUint64INSTANCE.Write(writer, value.Expiry)
-	FfiConverterOptionalStringINSTANCE.Write(writer, value.PaymentPreimage)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.PaymentProof)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.EstimatedBlocks)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.FeeIndex)
 	FfiConverterPaymentMethodINSTANCE.Write(writer, value.PaymentMethod)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.UsedByOperation)
 	FfiConverterUint32INSTANCE.Write(writer, value.Version)
@@ -20948,8 +16062,8 @@ type MeltQuoteBolt11Response struct {
 	State QuoteState
 	// Expiry timestamp
 	Expiry uint64
-	// Payment preimage (optional)
-	PaymentPreimage *string
+	// Payment proof (optional)
+	PaymentProof *string
 	// Request string (optional)
 	Request *string
 	// Unit (optional)
@@ -20962,7 +16076,7 @@ func (r *MeltQuoteBolt11Response) Destroy() {
 	FfiDestroyerAmount{}.Destroy(r.FeeReserve)
 	FfiDestroyerQuoteState{}.Destroy(r.State)
 	FfiDestroyerUint64{}.Destroy(r.Expiry)
-	FfiDestroyerOptionalString{}.Destroy(r.PaymentPreimage)
+	FfiDestroyerOptionalString{}.Destroy(r.PaymentProof)
 	FfiDestroyerOptionalString{}.Destroy(r.Request)
 	FfiDestroyerOptionalCurrencyUnit{}.Destroy(r.Unit)
 }
@@ -21002,7 +16116,7 @@ func (c FfiConverterMeltQuoteBolt11Response) Write(writer io.Writer, value MeltQ
 	FfiConverterAmountINSTANCE.Write(writer, value.FeeReserve)
 	FfiConverterQuoteStateINSTANCE.Write(writer, value.State)
 	FfiConverterUint64INSTANCE.Write(writer, value.Expiry)
-	FfiConverterOptionalStringINSTANCE.Write(writer, value.PaymentPreimage)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.PaymentProof)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.Request)
 	FfiConverterOptionalCurrencyUnitINSTANCE.Write(writer, value.Unit)
 }
@@ -21023,13 +16137,13 @@ type MeltQuoteCustomResponse struct {
 	// Amount
 	Amount Amount
 	// Fee reserve
-	FeeReserve Amount
+	FeeReserve *Amount
 	// State of the quote
 	State QuoteState
 	// Expiry timestamp
 	Expiry uint64
-	// Payment preimage (optional)
-	PaymentPreimage *string
+	// Payment proof (optional)
+	PaymentProof *string
 	// Request string (optional)
 	Request *string
 	// Unit (optional)
@@ -21044,10 +16158,10 @@ type MeltQuoteCustomResponse struct {
 func (r *MeltQuoteCustomResponse) Destroy() {
 	FfiDestroyerString{}.Destroy(r.Quote)
 	FfiDestroyerAmount{}.Destroy(r.Amount)
-	FfiDestroyerAmount{}.Destroy(r.FeeReserve)
+	FfiDestroyerOptionalAmount{}.Destroy(r.FeeReserve)
 	FfiDestroyerQuoteState{}.Destroy(r.State)
 	FfiDestroyerUint64{}.Destroy(r.Expiry)
-	FfiDestroyerOptionalString{}.Destroy(r.PaymentPreimage)
+	FfiDestroyerOptionalString{}.Destroy(r.PaymentProof)
 	FfiDestroyerOptionalString{}.Destroy(r.Request)
 	FfiDestroyerOptionalCurrencyUnit{}.Destroy(r.Unit)
 	FfiDestroyerOptionalString{}.Destroy(r.Extra)
@@ -21065,7 +16179,7 @@ func (c FfiConverterMeltQuoteCustomResponse) Read(reader io.Reader) MeltQuoteCus
 	return MeltQuoteCustomResponse{
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterAmountINSTANCE.Read(reader),
-		FfiConverterAmountINSTANCE.Read(reader),
+		FfiConverterOptionalAmountINSTANCE.Read(reader),
 		FfiConverterQuoteStateINSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
@@ -21086,10 +16200,10 @@ func (c FfiConverterMeltQuoteCustomResponse) LowerExternal(value MeltQuoteCustom
 func (c FfiConverterMeltQuoteCustomResponse) Write(writer io.Writer, value MeltQuoteCustomResponse) {
 	FfiConverterStringINSTANCE.Write(writer, value.Quote)
 	FfiConverterAmountINSTANCE.Write(writer, value.Amount)
-	FfiConverterAmountINSTANCE.Write(writer, value.FeeReserve)
+	FfiConverterOptionalAmountINSTANCE.Write(writer, value.FeeReserve)
 	FfiConverterQuoteStateINSTANCE.Write(writer, value.State)
 	FfiConverterUint64INSTANCE.Write(writer, value.Expiry)
-	FfiConverterOptionalStringINSTANCE.Write(writer, value.PaymentPreimage)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.PaymentProof)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.Request)
 	FfiConverterOptionalCurrencyUnitINSTANCE.Write(writer, value.Unit)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.Extra)
@@ -21098,6 +16212,145 @@ func (c FfiConverterMeltQuoteCustomResponse) Write(writer io.Writer, value MeltQ
 type FfiDestroyerMeltQuoteCustomResponse struct{}
 
 func (_ FfiDestroyerMeltQuoteCustomResponse) Destroy(value MeltQuoteCustomResponse) {
+	value.Destroy()
+}
+
+// Fee option for an onchain melt quote.
+type MeltQuoteOnchainFeeOption struct {
+	// Server-assigned identifier the wallet echoes back to select this option
+	FeeIndex uint32
+	// Maximum onchain transaction fee the mint may charge
+	FeeReserve Amount
+	// Estimated confirmation target in blocks
+	EstimatedBlocks uint32
+}
+
+func (r *MeltQuoteOnchainFeeOption) Destroy() {
+	FfiDestroyerUint32{}.Destroy(r.FeeIndex)
+	FfiDestroyerAmount{}.Destroy(r.FeeReserve)
+	FfiDestroyerUint32{}.Destroy(r.EstimatedBlocks)
+}
+
+type FfiConverterMeltQuoteOnchainFeeOption struct{}
+
+var FfiConverterMeltQuoteOnchainFeeOptionINSTANCE = FfiConverterMeltQuoteOnchainFeeOption{}
+
+func (c FfiConverterMeltQuoteOnchainFeeOption) Lift(rb RustBufferI) MeltQuoteOnchainFeeOption {
+	return LiftFromRustBuffer[MeltQuoteOnchainFeeOption](c, rb)
+}
+
+func (c FfiConverterMeltQuoteOnchainFeeOption) Read(reader io.Reader) MeltQuoteOnchainFeeOption {
+	return MeltQuoteOnchainFeeOption{
+		FfiConverterUint32INSTANCE.Read(reader),
+		FfiConverterAmountINSTANCE.Read(reader),
+		FfiConverterUint32INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterMeltQuoteOnchainFeeOption) Lower(value MeltQuoteOnchainFeeOption) C.RustBuffer {
+	return LowerIntoRustBuffer[MeltQuoteOnchainFeeOption](c, value)
+}
+
+func (c FfiConverterMeltQuoteOnchainFeeOption) LowerExternal(value MeltQuoteOnchainFeeOption) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[MeltQuoteOnchainFeeOption](c, value))
+}
+
+func (c FfiConverterMeltQuoteOnchainFeeOption) Write(writer io.Writer, value MeltQuoteOnchainFeeOption) {
+	FfiConverterUint32INSTANCE.Write(writer, value.FeeIndex)
+	FfiConverterAmountINSTANCE.Write(writer, value.FeeReserve)
+	FfiConverterUint32INSTANCE.Write(writer, value.EstimatedBlocks)
+}
+
+type FfiDestroyerMeltQuoteOnchainFeeOption struct{}
+
+func (_ FfiDestroyerMeltQuoteOnchainFeeOption) Destroy(value MeltQuoteOnchainFeeOption) {
+	value.Destroy()
+}
+
+// FFI-compatible MeltQuoteOnchainResponse.
+type MeltQuoteOnchainResponse struct {
+	// Quote ID
+	Quote string
+	// Amount being paid to the onchain address
+	Amount Amount
+	// Unit
+	Unit CurrencyUnit
+	// Quote state
+	State QuoteState
+	// Expiry timestamp
+	Expiry uint64
+	// Bitcoin address to pay
+	Request string
+	// Available onchain fee options
+	FeeOptions []MeltQuoteOnchainFeeOption
+	// Selected fee option index, once execution has started
+	SelectedFeeIndex *uint32
+	// Broadcast outpoint (`txid:vout`), once available
+	Outpoint *string
+	// Change blind signatures as JSON, when the mint returns change
+	Change *string
+}
+
+func (r *MeltQuoteOnchainResponse) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Quote)
+	FfiDestroyerAmount{}.Destroy(r.Amount)
+	FfiDestroyerCurrencyUnit{}.Destroy(r.Unit)
+	FfiDestroyerQuoteState{}.Destroy(r.State)
+	FfiDestroyerUint64{}.Destroy(r.Expiry)
+	FfiDestroyerString{}.Destroy(r.Request)
+	FfiDestroyerSequenceMeltQuoteOnchainFeeOption{}.Destroy(r.FeeOptions)
+	FfiDestroyerOptionalUint32{}.Destroy(r.SelectedFeeIndex)
+	FfiDestroyerOptionalString{}.Destroy(r.Outpoint)
+	FfiDestroyerOptionalString{}.Destroy(r.Change)
+}
+
+type FfiConverterMeltQuoteOnchainResponse struct{}
+
+var FfiConverterMeltQuoteOnchainResponseINSTANCE = FfiConverterMeltQuoteOnchainResponse{}
+
+func (c FfiConverterMeltQuoteOnchainResponse) Lift(rb RustBufferI) MeltQuoteOnchainResponse {
+	return LiftFromRustBuffer[MeltQuoteOnchainResponse](c, rb)
+}
+
+func (c FfiConverterMeltQuoteOnchainResponse) Read(reader io.Reader) MeltQuoteOnchainResponse {
+	return MeltQuoteOnchainResponse{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterAmountINSTANCE.Read(reader),
+		FfiConverterCurrencyUnitINSTANCE.Read(reader),
+		FfiConverterQuoteStateINSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterSequenceMeltQuoteOnchainFeeOptionINSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterMeltQuoteOnchainResponse) Lower(value MeltQuoteOnchainResponse) C.RustBuffer {
+	return LowerIntoRustBuffer[MeltQuoteOnchainResponse](c, value)
+}
+
+func (c FfiConverterMeltQuoteOnchainResponse) LowerExternal(value MeltQuoteOnchainResponse) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[MeltQuoteOnchainResponse](c, value))
+}
+
+func (c FfiConverterMeltQuoteOnchainResponse) Write(writer io.Writer, value MeltQuoteOnchainResponse) {
+	FfiConverterStringINSTANCE.Write(writer, value.Quote)
+	FfiConverterAmountINSTANCE.Write(writer, value.Amount)
+	FfiConverterCurrencyUnitINSTANCE.Write(writer, value.Unit)
+	FfiConverterQuoteStateINSTANCE.Write(writer, value.State)
+	FfiConverterUint64INSTANCE.Write(writer, value.Expiry)
+	FfiConverterStringINSTANCE.Write(writer, value.Request)
+	FfiConverterSequenceMeltQuoteOnchainFeeOptionINSTANCE.Write(writer, value.FeeOptions)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.SelectedFeeIndex)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.Outpoint)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.Change)
+}
+
+type FfiDestroyerMeltQuoteOnchainResponse struct{}
+
+func (_ FfiDestroyerMeltQuoteOnchainResponse) Destroy(value MeltQuoteOnchainResponse) {
 	value.Destroy()
 }
 
@@ -21307,7 +16560,10 @@ func (_ FfiDestroyerMintMethodSettings) Destroy(value MintMethodSettings) {
 type MintQuote struct {
 	// Quote ID
 	Id string
-	// Quote amount
+	// Requested or fixed quote amount, when defined by the payment method.
+	//
+	// Variable-amount methods such as onchain leave this unset and track
+	// funds through `amount_paid` and `amount_issued`.
 	Amount *Amount
 	// Currency unit
 	Unit CurrencyUnit
@@ -21323,6 +16579,8 @@ type MintQuote struct {
 	AmountIssued Amount
 	// Amount paid
 	AmountPaid Amount
+	// Estimated confirmation target in blocks for onchain quotes
+	EstimatedBlocks *uint32
 	// Payment method
 	PaymentMethod PaymentMethod
 	// Secret key (optional, hex-encoded)
@@ -21343,6 +16601,7 @@ func (r *MintQuote) Destroy() {
 	FfiDestroyerMintUrl{}.Destroy(r.MintUrl)
 	FfiDestroyerAmount{}.Destroy(r.AmountIssued)
 	FfiDestroyerAmount{}.Destroy(r.AmountPaid)
+	FfiDestroyerOptionalUint32{}.Destroy(r.EstimatedBlocks)
 	FfiDestroyerPaymentMethod{}.Destroy(r.PaymentMethod)
 	FfiDestroyerOptionalString{}.Destroy(r.SecretKey)
 	FfiDestroyerOptionalString{}.Destroy(r.UsedByOperation)
@@ -21368,6 +16627,7 @@ func (c FfiConverterMintQuote) Read(reader io.Reader) MintQuote {
 		FfiConverterMintUrlINSTANCE.Read(reader),
 		FfiConverterAmountINSTANCE.Read(reader),
 		FfiConverterAmountINSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
 		FfiConverterPaymentMethodINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
@@ -21393,6 +16653,7 @@ func (c FfiConverterMintQuote) Write(writer io.Writer, value MintQuote) {
 	FfiConverterMintUrlINSTANCE.Write(writer, value.MintUrl)
 	FfiConverterAmountINSTANCE.Write(writer, value.AmountIssued)
 	FfiConverterAmountINSTANCE.Write(writer, value.AmountPaid)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.EstimatedBlocks)
 	FfiConverterPaymentMethodINSTANCE.Write(writer, value.PaymentMethod)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.SecretKey)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.UsedByOperation)
@@ -21486,12 +16747,14 @@ type MintQuoteCustomResponse struct {
 	Quote string
 	// Request string
 	Request string
-	// State of the quote
-	State QuoteState
 	// Expiry timestamp (optional)
 	Expiry *uint64
 	// Amount (optional)
 	Amount *Amount
+	// Amount paid
+	AmountPaid Amount
+	// Amount issued
+	AmountIssued Amount
 	// Unit (optional)
 	Unit *CurrencyUnit
 	// Pubkey (optional)
@@ -21506,9 +16769,10 @@ type MintQuoteCustomResponse struct {
 func (r *MintQuoteCustomResponse) Destroy() {
 	FfiDestroyerString{}.Destroy(r.Quote)
 	FfiDestroyerString{}.Destroy(r.Request)
-	FfiDestroyerQuoteState{}.Destroy(r.State)
 	FfiDestroyerOptionalUint64{}.Destroy(r.Expiry)
 	FfiDestroyerOptionalAmount{}.Destroy(r.Amount)
+	FfiDestroyerAmount{}.Destroy(r.AmountPaid)
+	FfiDestroyerAmount{}.Destroy(r.AmountIssued)
 	FfiDestroyerOptionalCurrencyUnit{}.Destroy(r.Unit)
 	FfiDestroyerOptionalString{}.Destroy(r.Pubkey)
 	FfiDestroyerOptionalString{}.Destroy(r.Extra)
@@ -21526,9 +16790,10 @@ func (c FfiConverterMintQuoteCustomResponse) Read(reader io.Reader) MintQuoteCus
 	return MintQuoteCustomResponse{
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterStringINSTANCE.Read(reader),
-		FfiConverterQuoteStateINSTANCE.Read(reader),
 		FfiConverterOptionalUint64INSTANCE.Read(reader),
 		FfiConverterOptionalAmountINSTANCE.Read(reader),
+		FfiConverterAmountINSTANCE.Read(reader),
+		FfiConverterAmountINSTANCE.Read(reader),
 		FfiConverterOptionalCurrencyUnitINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
@@ -21546,9 +16811,10 @@ func (c FfiConverterMintQuoteCustomResponse) LowerExternal(value MintQuoteCustom
 func (c FfiConverterMintQuoteCustomResponse) Write(writer io.Writer, value MintQuoteCustomResponse) {
 	FfiConverterStringINSTANCE.Write(writer, value.Quote)
 	FfiConverterStringINSTANCE.Write(writer, value.Request)
-	FfiConverterQuoteStateINSTANCE.Write(writer, value.State)
 	FfiConverterOptionalUint64INSTANCE.Write(writer, value.Expiry)
 	FfiConverterOptionalAmountINSTANCE.Write(writer, value.Amount)
+	FfiConverterAmountINSTANCE.Write(writer, value.AmountPaid)
+	FfiConverterAmountINSTANCE.Write(writer, value.AmountIssued)
 	FfiConverterOptionalCurrencyUnitINSTANCE.Write(writer, value.Unit)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.Pubkey)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.Extra)
@@ -21557,6 +16823,78 @@ func (c FfiConverterMintQuoteCustomResponse) Write(writer io.Writer, value MintQ
 type FfiDestroyerMintQuoteCustomResponse struct{}
 
 func (_ FfiDestroyerMintQuoteCustomResponse) Destroy(value MintQuoteCustomResponse) {
+	value.Destroy()
+}
+
+// FFI-compatible MintQuoteOnchainResponse.
+type MintQuoteOnchainResponse struct {
+	// Quote ID
+	Quote string
+	// Bitcoin address to pay
+	Request string
+	// Unit
+	Unit CurrencyUnit
+	// Expiry timestamp
+	Expiry *uint64
+	// NUT-20 public key
+	Pubkey string
+	// Total confirmed amount paid to the onchain address
+	AmountPaid Amount
+	// Amount already issued for this quote
+	AmountIssued Amount
+}
+
+func (r *MintQuoteOnchainResponse) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Quote)
+	FfiDestroyerString{}.Destroy(r.Request)
+	FfiDestroyerCurrencyUnit{}.Destroy(r.Unit)
+	FfiDestroyerOptionalUint64{}.Destroy(r.Expiry)
+	FfiDestroyerString{}.Destroy(r.Pubkey)
+	FfiDestroyerAmount{}.Destroy(r.AmountPaid)
+	FfiDestroyerAmount{}.Destroy(r.AmountIssued)
+}
+
+type FfiConverterMintQuoteOnchainResponse struct{}
+
+var FfiConverterMintQuoteOnchainResponseINSTANCE = FfiConverterMintQuoteOnchainResponse{}
+
+func (c FfiConverterMintQuoteOnchainResponse) Lift(rb RustBufferI) MintQuoteOnchainResponse {
+	return LiftFromRustBuffer[MintQuoteOnchainResponse](c, rb)
+}
+
+func (c FfiConverterMintQuoteOnchainResponse) Read(reader io.Reader) MintQuoteOnchainResponse {
+	return MintQuoteOnchainResponse{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterCurrencyUnitINSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterAmountINSTANCE.Read(reader),
+		FfiConverterAmountINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterMintQuoteOnchainResponse) Lower(value MintQuoteOnchainResponse) C.RustBuffer {
+	return LowerIntoRustBuffer[MintQuoteOnchainResponse](c, value)
+}
+
+func (c FfiConverterMintQuoteOnchainResponse) LowerExternal(value MintQuoteOnchainResponse) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[MintQuoteOnchainResponse](c, value))
+}
+
+func (c FfiConverterMintQuoteOnchainResponse) Write(writer io.Writer, value MintQuoteOnchainResponse) {
+	FfiConverterStringINSTANCE.Write(writer, value.Quote)
+	FfiConverterStringINSTANCE.Write(writer, value.Request)
+	FfiConverterCurrencyUnitINSTANCE.Write(writer, value.Unit)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.Expiry)
+	FfiConverterStringINSTANCE.Write(writer, value.Pubkey)
+	FfiConverterAmountINSTANCE.Write(writer, value.AmountPaid)
+	FfiConverterAmountINSTANCE.Write(writer, value.AmountIssued)
+}
+
+type FfiDestroyerMintQuoteOnchainResponse struct{}
+
+func (_ FfiDestroyerMintQuoteOnchainResponse) Destroy(value MintQuoteOnchainResponse) {
 	value.Destroy()
 }
 
@@ -21645,6 +16983,53 @@ func (c FfiConverterMintVersion) Write(writer io.Writer, value MintVersion) {
 type FfiDestroyerMintVersion struct{}
 
 func (_ FfiDestroyerMintVersion) Destroy(value MintVersion) {
+	value.Destroy()
+}
+
+// FFI-compatible NUT-13 restore options
+type Nut13Options struct {
+	// Number of blinded messages to request per batch
+	BatchSize uint32
+	// Number of consecutive empty batches that terminate the scan
+	MaxGap uint32
+}
+
+func (r *Nut13Options) Destroy() {
+	FfiDestroyerUint32{}.Destroy(r.BatchSize)
+	FfiDestroyerUint32{}.Destroy(r.MaxGap)
+}
+
+type FfiConverterNut13Options struct{}
+
+var FfiConverterNut13OptionsINSTANCE = FfiConverterNut13Options{}
+
+func (c FfiConverterNut13Options) Lift(rb RustBufferI) Nut13Options {
+	return LiftFromRustBuffer[Nut13Options](c, rb)
+}
+
+func (c FfiConverterNut13Options) Read(reader io.Reader) Nut13Options {
+	return Nut13Options{
+		FfiConverterUint32INSTANCE.Read(reader),
+		FfiConverterUint32INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterNut13Options) Lower(value Nut13Options) C.RustBuffer {
+	return LowerIntoRustBuffer[Nut13Options](c, value)
+}
+
+func (c FfiConverterNut13Options) LowerExternal(value Nut13Options) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[Nut13Options](c, value))
+}
+
+func (c FfiConverterNut13Options) Write(writer io.Writer, value Nut13Options) {
+	FfiConverterUint32INSTANCE.Write(writer, value.BatchSize)
+	FfiConverterUint32INSTANCE.Write(writer, value.MaxGap)
+}
+
+type FfiDestroyerNut13Options struct{}
+
+func (_ FfiDestroyerNut13Options) Destroy(value Nut13Options) {
 	value.Destroy()
 }
 
@@ -22612,6 +17997,63 @@ func (_ FfiDestroyerReceiveOptions) Destroy(value ReceiveOptions) {
 	value.Destroy()
 }
 
+// Report of wallet saga recovery operations.
+type RecoveryReport struct {
+	// Operations successfully completed after crash.
+	Recovered uint64
+	// Operations rolled back and resources released.
+	Compensated uint64
+	// Operations still pending and left for a later retry.
+	Skipped uint64
+	// Operations that could not be recovered.
+	Failed uint64
+}
+
+func (r *RecoveryReport) Destroy() {
+	FfiDestroyerUint64{}.Destroy(r.Recovered)
+	FfiDestroyerUint64{}.Destroy(r.Compensated)
+	FfiDestroyerUint64{}.Destroy(r.Skipped)
+	FfiDestroyerUint64{}.Destroy(r.Failed)
+}
+
+type FfiConverterRecoveryReport struct{}
+
+var FfiConverterRecoveryReportINSTANCE = FfiConverterRecoveryReport{}
+
+func (c FfiConverterRecoveryReport) Lift(rb RustBufferI) RecoveryReport {
+	return LiftFromRustBuffer[RecoveryReport](c, rb)
+}
+
+func (c FfiConverterRecoveryReport) Read(reader io.Reader) RecoveryReport {
+	return RecoveryReport{
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterUint64INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterRecoveryReport) Lower(value RecoveryReport) C.RustBuffer {
+	return LowerIntoRustBuffer[RecoveryReport](c, value)
+}
+
+func (c FfiConverterRecoveryReport) LowerExternal(value RecoveryReport) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[RecoveryReport](c, value))
+}
+
+func (c FfiConverterRecoveryReport) Write(writer io.Writer, value RecoveryReport) {
+	FfiConverterUint64INSTANCE.Write(writer, value.Recovered)
+	FfiConverterUint64INSTANCE.Write(writer, value.Compensated)
+	FfiConverterUint64INSTANCE.Write(writer, value.Skipped)
+	FfiConverterUint64INSTANCE.Write(writer, value.Failed)
+}
+
+type FfiDestroyerRecoveryReport struct{}
+
+func (_ FfiDestroyerRecoveryReport) Destroy(value RecoveryReport) {
+	value.Destroy()
+}
+
 // Options for restore operations
 type RestoreOptions struct {
 	// Timeout in seconds for waiting for relay responses
@@ -22861,6 +18303,10 @@ type SendOptions struct {
 	MaxProofs *uint32
 	// Metadata
 	Metadata map[string]string
+	// Signing keys for P2PK-locked input proofs
+	P2pkSigningKeys []SecretKey
+	// How P2PK-locked input proofs should be handled during send
+	P2pkLockedProofSendMode P2pkLockedProofSendMode
 }
 
 func (r *SendOptions) Destroy() {
@@ -22872,6 +18318,8 @@ func (r *SendOptions) Destroy() {
 	FfiDestroyerBool{}.Destroy(r.UseP2bk)
 	FfiDestroyerOptionalUint32{}.Destroy(r.MaxProofs)
 	FfiDestroyerMapStringString{}.Destroy(r.Metadata)
+	FfiDestroyerSequenceSecretKey{}.Destroy(r.P2pkSigningKeys)
+	FfiDestroyerP2pkLockedProofSendMode{}.Destroy(r.P2pkLockedProofSendMode)
 }
 
 type FfiConverterSendOptions struct{}
@@ -22892,6 +18340,8 @@ func (c FfiConverterSendOptions) Read(reader io.Reader) SendOptions {
 		FfiConverterBoolINSTANCE.Read(reader),
 		FfiConverterOptionalUint32INSTANCE.Read(reader),
 		FfiConverterMapStringStringINSTANCE.Read(reader),
+		FfiConverterSequenceSecretKeyINSTANCE.Read(reader),
+		FfiConverterP2pkLockedProofSendModeINSTANCE.Read(reader),
 	}
 }
 
@@ -22912,6 +18362,8 @@ func (c FfiConverterSendOptions) Write(writer io.Writer, value SendOptions) {
 	FfiConverterBoolINSTANCE.Write(writer, value.UseP2bk)
 	FfiConverterOptionalUint32INSTANCE.Write(writer, value.MaxProofs)
 	FfiConverterMapStringStringINSTANCE.Write(writer, value.Metadata)
+	FfiConverterSequenceSecretKeyINSTANCE.Write(writer, value.P2pkSigningKeys)
+	FfiConverterP2pkLockedProofSendModeINSTANCE.Write(writer, value.P2pkLockedProofSendMode)
 }
 
 type FfiDestroyerSendOptions struct{}
@@ -23847,6 +19299,24 @@ func (e NotificationPayloadMeltQuoteUpdate) Destroy() {
 	FfiDestroyerMeltQuoteBolt11Response{}.Destroy(e.Quote)
 }
 
+// Onchain mint quote update
+type NotificationPayloadMintQuoteOnchainUpdate struct {
+	Quote MintQuoteOnchainResponse
+}
+
+func (e NotificationPayloadMintQuoteOnchainUpdate) Destroy() {
+	FfiDestroyerMintQuoteOnchainResponse{}.Destroy(e.Quote)
+}
+
+// Onchain melt quote update
+type NotificationPayloadMeltQuoteOnchainUpdate struct {
+	Quote MeltQuoteOnchainResponse
+}
+
+func (e NotificationPayloadMeltQuoteOnchainUpdate) Destroy() {
+	FfiDestroyerMeltQuoteOnchainResponse{}.Destroy(e.Quote)
+}
+
 type FfiConverterNotificationPayload struct{}
 
 var FfiConverterNotificationPayloadINSTANCE = FfiConverterNotificationPayload{}
@@ -23877,6 +19347,14 @@ func (FfiConverterNotificationPayload) Read(reader io.Reader) NotificationPayloa
 		return NotificationPayloadMeltQuoteUpdate{
 			FfiConverterMeltQuoteBolt11ResponseINSTANCE.Read(reader),
 		}
+	case 4:
+		return NotificationPayloadMintQuoteOnchainUpdate{
+			FfiConverterMintQuoteOnchainResponseINSTANCE.Read(reader),
+		}
+	case 5:
+		return NotificationPayloadMeltQuoteOnchainUpdate{
+			FfiConverterMeltQuoteOnchainResponseINSTANCE.Read(reader),
+		}
 	default:
 		panic(fmt.Sprintf("invalid enum value %v in FfiConverterNotificationPayload.Read()", id))
 	}
@@ -23893,6 +19371,12 @@ func (FfiConverterNotificationPayload) Write(writer io.Writer, value Notificatio
 	case NotificationPayloadMeltQuoteUpdate:
 		writeInt32(writer, 3)
 		FfiConverterMeltQuoteBolt11ResponseINSTANCE.Write(writer, variant_value.Quote)
+	case NotificationPayloadMintQuoteOnchainUpdate:
+		writeInt32(writer, 4)
+		FfiConverterMintQuoteOnchainResponseINSTANCE.Write(writer, variant_value.Quote)
+	case NotificationPayloadMeltQuoteOnchainUpdate:
+		writeInt32(writer, 5)
+		FfiConverterMeltQuoteOnchainResponseINSTANCE.Write(writer, variant_value.Quote)
 	default:
 		_ = variant_value
 		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterNotificationPayload.Write", value))
@@ -23903,6 +19387,45 @@ type FfiDestroyerNotificationPayload struct{}
 
 func (_ FfiDestroyerNotificationPayload) Destroy(value NotificationPayload) {
 	value.Destroy()
+}
+
+// FFI-compatible P2PK locked proof send mode
+type P2pkLockedProofSendMode uint
+
+const (
+	// Swap locked proofs into fresh proofs before creating the token
+	P2pkLockedProofSendModeSwap P2pkLockedProofSendMode = 1
+	// Sign locked proofs and include them directly in the token
+	P2pkLockedProofSendModeSignAndSend P2pkLockedProofSendMode = 2
+)
+
+type FfiConverterP2pkLockedProofSendMode struct{}
+
+var FfiConverterP2pkLockedProofSendModeINSTANCE = FfiConverterP2pkLockedProofSendMode{}
+
+func (c FfiConverterP2pkLockedProofSendMode) Lift(rb RustBufferI) P2pkLockedProofSendMode {
+	return LiftFromRustBuffer[P2pkLockedProofSendMode](c, rb)
+}
+
+func (c FfiConverterP2pkLockedProofSendMode) Lower(value P2pkLockedProofSendMode) C.RustBuffer {
+	return LowerIntoRustBuffer[P2pkLockedProofSendMode](c, value)
+}
+
+func (c FfiConverterP2pkLockedProofSendMode) LowerExternal(value P2pkLockedProofSendMode) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[P2pkLockedProofSendMode](c, value))
+}
+func (FfiConverterP2pkLockedProofSendMode) Read(reader io.Reader) P2pkLockedProofSendMode {
+	id := readInt32(reader)
+	return P2pkLockedProofSendMode(id)
+}
+
+func (FfiConverterP2pkLockedProofSendMode) Write(writer io.Writer, value P2pkLockedProofSendMode) {
+	writeInt32(writer, int32(value))
+}
+
+type FfiDestroyerP2pkLockedProofSendMode struct{}
+
+func (_ FfiDestroyerP2pkLockedProofSendMode) Destroy(value P2pkLockedProofSendMode) {
 }
 
 // FFI-compatible PaymentMethod
@@ -23922,6 +19445,13 @@ type PaymentMethodBolt12 struct {
 }
 
 func (e PaymentMethodBolt12) Destroy() {
+}
+
+// Onchain Bitcoin payment type
+type PaymentMethodOnchain struct {
+}
+
+func (e PaymentMethodOnchain) Destroy() {
 }
 
 // Custom payment type
@@ -23956,6 +19486,8 @@ func (FfiConverterPaymentMethod) Read(reader io.Reader) PaymentMethod {
 	case 2:
 		return PaymentMethodBolt12{}
 	case 3:
+		return PaymentMethodOnchain{}
+	case 4:
 		return PaymentMethodCustom{
 			FfiConverterStringINSTANCE.Read(reader),
 		}
@@ -23970,8 +19502,10 @@ func (FfiConverterPaymentMethod) Write(writer io.Writer, value PaymentMethod) {
 		writeInt32(writer, 1)
 	case PaymentMethodBolt12:
 		writeInt32(writer, 2)
-	case PaymentMethodCustom:
+	case PaymentMethodOnchain:
 		writeInt32(writer, 3)
+	case PaymentMethodCustom:
+		writeInt32(writer, 4)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.Method)
 	default:
 		_ = variant_value
@@ -24378,8 +19912,12 @@ const (
 	SubscriptionKindBolt12MintQuote SubscriptionKind = 3
 	// Bolt 12 Melt Quote
 	SubscriptionKindBolt12MeltQuote SubscriptionKind = 4
+	// Onchain Mint Quote
+	SubscriptionKindOnchainMintQuote SubscriptionKind = 5
+	// Onchain Melt Quote
+	SubscriptionKindOnchainMeltQuote SubscriptionKind = 6
 	// Proof State
-	SubscriptionKindProofState SubscriptionKind = 5
+	SubscriptionKindProofState SubscriptionKind = 7
 )
 
 type FfiConverterSubscriptionKind struct{}
@@ -24501,14 +20039,6 @@ func (e WalletDbBackendSqlite) Destroy() {
 	FfiDestroyerString{}.Destroy(e.Path)
 }
 
-type WalletDbBackendPostgres struct {
-	Url string
-}
-
-func (e WalletDbBackendPostgres) Destroy() {
-	FfiDestroyerString{}.Destroy(e.Url)
-}
-
 type FfiConverterWalletDbBackend struct{}
 
 var FfiConverterWalletDbBackendINSTANCE = FfiConverterWalletDbBackend{}
@@ -24531,10 +20061,6 @@ func (FfiConverterWalletDbBackend) Read(reader io.Reader) WalletDbBackend {
 		return WalletDbBackendSqlite{
 			FfiConverterStringINSTANCE.Read(reader),
 		}
-	case 2:
-		return WalletDbBackendPostgres{
-			FfiConverterStringINSTANCE.Read(reader),
-		}
 	default:
 		panic(fmt.Sprintf("invalid enum value %v in FfiConverterWalletDbBackend.Read()", id))
 	}
@@ -24545,9 +20071,6 @@ func (FfiConverterWalletDbBackend) Write(writer io.Writer, value WalletDbBackend
 	case WalletDbBackendSqlite:
 		writeInt32(writer, 1)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.Path)
-	case WalletDbBackendPostgres:
-		writeInt32(writer, 2)
-		FfiConverterStringINSTANCE.Write(writer, variant_value.Url)
 	default:
 		_ = variant_value
 		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterWalletDbBackend.Write", value))
@@ -24575,14 +20098,6 @@ type WalletStoreSqlite struct {
 
 func (e WalletStoreSqlite) Destroy() {
 	FfiDestroyerString{}.Destroy(e.Path)
-}
-
-type WalletStorePostgres struct {
-	Url string
-}
-
-func (e WalletStorePostgres) Destroy() {
-	FfiDestroyerString{}.Destroy(e.Url)
 }
 
 type WalletStoreCustom struct {
@@ -24616,10 +20131,6 @@ func (FfiConverterWalletStore) Read(reader io.Reader) WalletStore {
 			FfiConverterStringINSTANCE.Read(reader),
 		}
 	case 2:
-		return WalletStorePostgres{
-			FfiConverterStringINSTANCE.Read(reader),
-		}
-	case 3:
 		return WalletStoreCustom{
 			FfiConverterWalletDatabaseINSTANCE.Read(reader),
 		}
@@ -24633,11 +20144,8 @@ func (FfiConverterWalletStore) Write(writer io.Writer, value WalletStore) {
 	case WalletStoreSqlite:
 		writeInt32(writer, 1)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.Path)
-	case WalletStorePostgres:
-		writeInt32(writer, 2)
-		FfiConverterStringINSTANCE.Write(writer, variant_value.Url)
 	case WalletStoreCustom:
-		writeInt32(writer, 3)
+		writeInt32(writer, 2)
 		FfiConverterWalletDatabaseINSTANCE.Write(writer, variant_value.Db)
 	default:
 		_ = variant_value
@@ -24808,47 +20316,6 @@ type FfiDestroyerOptionalUint64 struct{}
 func (_ FfiDestroyerOptionalUint64) Destroy(value *uint64) {
 	if value != nil {
 		FfiDestroyerUint64{}.Destroy(*value)
-	}
-}
-
-type FfiConverterOptionalInt64 struct{}
-
-var FfiConverterOptionalInt64INSTANCE = FfiConverterOptionalInt64{}
-
-func (c FfiConverterOptionalInt64) Lift(rb RustBufferI) *int64 {
-	return LiftFromRustBuffer[*int64](c, rb)
-}
-
-func (_ FfiConverterOptionalInt64) Read(reader io.Reader) *int64 {
-	if readInt8(reader) == 0 {
-		return nil
-	}
-	temp := FfiConverterInt64INSTANCE.Read(reader)
-	return &temp
-}
-
-func (c FfiConverterOptionalInt64) Lower(value *int64) C.RustBuffer {
-	return LowerIntoRustBuffer[*int64](c, value)
-}
-
-func (c FfiConverterOptionalInt64) LowerExternal(value *int64) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[*int64](c, value))
-}
-
-func (_ FfiConverterOptionalInt64) Write(writer io.Writer, value *int64) {
-	if value == nil {
-		writeInt8(writer, 0)
-	} else {
-		writeInt8(writer, 1)
-		FfiConverterInt64INSTANCE.Write(writer, *value)
-	}
-}
-
-type FfiDestroyerOptionalInt64 struct{}
-
-func (_ FfiDestroyerOptionalInt64) Destroy(value *int64) {
-	if value != nil {
-		FfiDestroyerInt64{}.Destroy(*value)
 	}
 }
 
@@ -26678,6 +22145,53 @@ type FfiDestroyerSequenceMeltQuote struct{}
 func (FfiDestroyerSequenceMeltQuote) Destroy(sequence []MeltQuote) {
 	for _, value := range sequence {
 		FfiDestroyerMeltQuote{}.Destroy(value)
+	}
+}
+
+type FfiConverterSequenceMeltQuoteOnchainFeeOption struct{}
+
+var FfiConverterSequenceMeltQuoteOnchainFeeOptionINSTANCE = FfiConverterSequenceMeltQuoteOnchainFeeOption{}
+
+func (c FfiConverterSequenceMeltQuoteOnchainFeeOption) Lift(rb RustBufferI) []MeltQuoteOnchainFeeOption {
+	return LiftFromRustBuffer[[]MeltQuoteOnchainFeeOption](c, rb)
+}
+
+func (c FfiConverterSequenceMeltQuoteOnchainFeeOption) Read(reader io.Reader) []MeltQuoteOnchainFeeOption {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]MeltQuoteOnchainFeeOption, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterMeltQuoteOnchainFeeOptionINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceMeltQuoteOnchainFeeOption) Lower(value []MeltQuoteOnchainFeeOption) C.RustBuffer {
+	return LowerIntoRustBuffer[[]MeltQuoteOnchainFeeOption](c, value)
+}
+
+func (c FfiConverterSequenceMeltQuoteOnchainFeeOption) LowerExternal(value []MeltQuoteOnchainFeeOption) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]MeltQuoteOnchainFeeOption](c, value))
+}
+
+func (c FfiConverterSequenceMeltQuoteOnchainFeeOption) Write(writer io.Writer, value []MeltQuoteOnchainFeeOption) {
+	if len(value) > math.MaxInt32 {
+		panic("[]MeltQuoteOnchainFeeOption is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterMeltQuoteOnchainFeeOptionINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceMeltQuoteOnchainFeeOption struct{}
+
+func (FfiDestroyerSequenceMeltQuoteOnchainFeeOption) Destroy(sequence []MeltQuoteOnchainFeeOption) {
+	for _, value := range sequence {
+		FfiDestroyerMeltQuoteOnchainFeeOption{}.Destroy(value)
 	}
 }
 
@@ -28671,15 +24185,6 @@ func ParseBip321PaymentInstruction(instruction string, network BitcoinNetwork) (
 	return res, err
 }
 
-// Create a PostgreSQL-backed wallet store.
-func PostgresWalletStore(url string) WalletStore {
-	return FfiConverterWalletStoreINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
-		return GoRustBuffer{
-			inner: C.uniffi_cdk_ffi_fn_func_postgres_wallet_store(FfiConverterStringINSTANCE.Lower(url), _uniffiStatus),
-		}
-	}))
-}
-
 // Check if proof has DLEQ proof
 func ProofHasDleq(proof Proof) bool {
 	return FfiConverterBoolINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) C.int8_t {
@@ -28804,97 +24309,6 @@ func SqliteWalletStore(path string) WalletStore {
 			inner: C.uniffi_cdk_ffi_fn_func_sqlite_wallet_store(FfiConverterStringINSTANCE.Lower(path), _uniffiStatus),
 		}
 	}))
-}
-
-// Get the full database schema SQL
-//
-// Returns the concatenated SQL of all migration files.
-//
-// Use this to set up or update the database schema. Pipe the output into
-// the Supabase Dashboard SQL editor or `supabase db push`.
-// This is an **admin-only operation** — never call this from a client app.
-func SupabaseGetSchemaSql() string {
-	return FfiConverterStringINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
-		return GoRustBuffer{
-			inner: C.uniffi_cdk_ffi_fn_func_supabase_get_schema_sql(_uniffiStatus),
-		}
-	}))
-}
-
-// Get the schema version required by this SDK version
-//
-// Returns the schema version number that the database must have for this
-// SDK version to work correctly. Use this to display helpful upgrade messages.
-func SupabaseRequiredSchemaVersion() uint32 {
-	return FfiConverterUint32INSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint32_t {
-		return C.uniffi_cdk_ffi_fn_func_supabase_required_schema_version(_uniffiStatus)
-	}))
-}
-
-// Sign in a user with email and password
-func SupabaseSignin(url string, apiKey string, email string, password string) (AuthResponse, error) {
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) AuthResponse {
-			return FfiConverterAuthResponseINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_func_supabase_signin(FfiConverterStringINSTANCE.Lower(url), FfiConverterStringINSTANCE.Lower(apiKey), FfiConverterStringINSTANCE.Lower(email), FfiConverterStringINSTANCE.Lower(password)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
-}
-
-// Sign up a new user with email and password
-func SupabaseSignup(url string, apiKey string, email string, password string) (AuthResponse, error) {
-	res, err := uniffiRustCallAsync[*FfiError](
-		FfiConverterFfiErrorINSTANCE,
-		// completeFn
-		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
-			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
-			return GoRustBuffer{
-				inner: res,
-			}
-		},
-		// liftFn
-		func(ffi RustBufferI) AuthResponse {
-			return FfiConverterAuthResponseINSTANCE.Lift(ffi)
-		},
-		C.uniffi_cdk_ffi_fn_func_supabase_signup(FfiConverterStringINSTANCE.Lower(url), FfiConverterStringINSTANCE.Lower(apiKey), FfiConverterStringINSTANCE.Lower(email), FfiConverterStringINSTANCE.Lower(password)),
-		// pollFn
-		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
-		},
-		// freeFn
-		func(handle C.uint64_t) {
-			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
-		},
-	)
-
-	if err == nil {
-		return res, nil
-	}
-
-	return res, err
 }
 
 // Check if a transaction matches the given filter conditions
