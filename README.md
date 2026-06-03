@@ -2,53 +2,90 @@
 
 Go FFI bindings for [cashubtc/cdk](https://github.com/cashubtc/cdk) (Cashu Development Kit), generated via [uniffi-bindgen-go](https://github.com/NordSecurity/uniffi-bindgen-go).
 
-Prebuilt native libraries are committed to this repo — downstream consumers only need Go.
+Prebuilt native libraries are included — downstream consumers only need Go.
 
-## Usage
+## Install
 
 ```bash
 go get github.com/cashubtc/cdk-go
 ```
 
-CGO link flags are automatically selected per platform. No manual setup required.
+## Quick Start
 
-### Supported platforms
+```go
+package main
 
-| OS      | Arch  | Library                |
-|---------|-------|------------------------|
-| Linux   | amd64 | `libcdk_ffi.so`        |
-| macOS   | arm64 | `libcdk_ffi.dylib`     |
-| macOS   | amd64 | `libcdk_ffi.dylib`     |
+import (
+	"fmt"
 
-## Development
+	cdk "github.com/cashubtc/cdk-go/bindings/cdkffi"
+)
 
-### Prerequisites
-
-- Go 1.22+
-- Rust toolchain (stable)
-- `CGO_ENABLED=1`
-
-### Regenerating bindings
-
-```bash
-make generate   # clone CDK, build libcdk_ffi, generate Go bindings
-make verify     # CGO_ENABLED=1 go test ./bindings/cdkffi
-make clean      # rm -rf .work bindings/cdkffi
+func main() {
+	// Create a new wallet
+	seed := cdk.GenerateMnemonic()
+	fmt.Println("Mnemonic:", seed)
+}
 ```
 
-### Environment variables
+> **Note:** Requires `CGO_ENABLED=1` (the default on most systems).
 
-| Variable               | Default                              | Description                          |
-|------------------------|--------------------------------------|--------------------------------------|
-| `CDK_REF`              | `main`                            | CDK branch, tag, or SHA to build     |
-| `CDK_REPO`             | `https://github.com/cashubtc/cdk.git`| CDK source repository                |
-| `UNIFFI_BINDGEN_GO_TAG`| `v0.6.0+v0.30.0`                     | Pinned `uniffi-bindgen-go` version   |
-| `BUILD_PROFILE`        | `release`                            | Rust build profile                   |
+## Supported platforms
 
-## CI/CD
+| OS      | Arch  | Library            |
+|---------|-------|--------------------|
+| Linux   | amd64 | `libcdk_ffi.so`    |
+| Linux   | arm64 | `libcdk_ffi.so`    |
+| macOS   | arm64 | `libcdk_ffi.dylib` |
+| macOS   | amd64 | `libcdk_ffi.dylib` |
+| Windows | amd64 | `cdk_ffi.dll`      |
 
-| Workflow                  | Trigger              | Description                                               |
-|---------------------------|----------------------|-----------------------------------------------------------|
-| `ci.yml`                  | Push / PR            | Regenerates bindings; fails if committed source has drifted |
-| `update-bindings-pr.yml`  | Scheduled / manual   | Rebuilds cross-platform and opens a PR with updated files |
-| `release.yml`             | Dispatch / manual    | Rebuilds from a CDK ref, tags the repo, and publishes a GitHub release |
+CGO link flags are automatically selected per platform via build tags. No manual setup required.
+
+## Prerequisites
+
+- Go 1.22+
+- `CGO_ENABLED=1`
+
+## Building from Source
+
+Requires Rust and the [just](https://github.com/casey/just) command runner.
+
+```bash
+# Generate Go bindings and build native library
+just binding-go
+
+# Run tests
+just test-go
+```
+
+## CI/CD — Publishing Workflow
+
+The `go-publish.yml` workflow (in the CDK monorepo) builds native binaries,
+syncs sources to `cdk-go`, and creates a tagged release. The following secrets
+and variables must be configured in the **CDK monorepo** repository settings
+(Settings → Secrets and variables → Actions).
+
+### Secrets
+
+| Name | Purpose |
+|---|---|
+| `FFI_DEPLOY_KEY` | Personal access token (PAT) with `repo` scope on the FFI target repos. Used to clone, push, and create releases. Shared across all FFI publish workflows. |
+
+#### How to create the PAT
+
+1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**.
+2. Create a token scoped to the FFI target repositories with **Contents** (read/write) and **Metadata** (read) permissions.
+3. Add it as a repository secret named `FFI_DEPLOY_KEY` in the monorepo.
+
+### Variables
+
+| Name | Purpose | Example |
+|---|---|---|
+| `CDK_GO_REPO` | Owner/repo of the target Go package repository. | `cashubtc/cdk-go` |
+
+Set this under **Settings → Secrets and variables → Actions → Variables**.
+
+## License
+
+[MIT](https://github.com/cashubtc/cdk/blob/main/LICENSE)
