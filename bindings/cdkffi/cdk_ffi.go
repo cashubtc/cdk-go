@@ -827,7 +827,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_func_npubcash_derive_secret_key_from_seed()
 		})
-		if checksum != 22494 {
+		if checksum != 6473 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_npubcash_derive_secret_key_from_seed: UniFFI API checksum mismatch")
 		}
@@ -15790,19 +15790,13 @@ func (_ FfiDestroyerKeySetInfo) Destroy(value KeySetInfo) {
 	value.Destroy()
 }
 
-// FFI-compatible Keys (simplified - contains only essential info)
+// FFI-compatible Keys
 type Keys struct {
-	// Keyset ID
-	Id string
-	// Currency unit
-	Unit CurrencyUnit
-	// Map of amount to public key hex (simplified from BTreeMap)
+	// Map of amount to public key hex
 	Keys map[uint64]string
 }
 
 func (r *Keys) Destroy() {
-	FfiDestroyerString{}.Destroy(r.Id)
-	FfiDestroyerCurrencyUnit{}.Destroy(r.Unit)
 	FfiDestroyerMapUint64String{}.Destroy(r.Keys)
 }
 
@@ -15816,8 +15810,6 @@ func (c FfiConverterKeys) Lift(rb RustBufferI) Keys {
 
 func (c FfiConverterKeys) Read(reader io.Reader) Keys {
 	return Keys{
-		FfiConverterStringINSTANCE.Read(reader),
-		FfiConverterCurrencyUnitINSTANCE.Read(reader),
 		FfiConverterMapUint64StringINSTANCE.Read(reader),
 	}
 }
@@ -15831,8 +15823,6 @@ func (c FfiConverterKeys) LowerExternal(value Keys) ExternalCRustBuffer {
 }
 
 func (c FfiConverterKeys) Write(writer io.Writer, value Keys) {
-	FfiConverterStringINSTANCE.Write(writer, value.Id)
-	FfiConverterCurrencyUnitINSTANCE.Write(writer, value.Unit)
 	FfiConverterMapUint64StringINSTANCE.Write(writer, value.Keys)
 }
 
@@ -24063,11 +24053,11 @@ func MnemonicToEntropy(mnemonic string) ([]byte, error) {
 // Derive Nostr keys from a wallet seed
 //
 // This function derives the same Nostr keys that a wallet would use for NpubCash
-// authentication. It takes the first 32 bytes of the seed as the secret key.
+// authentication, using the NIP-06 path `m/44'/1237'/0'/0/0`.
 //
 // # Arguments
 //
-// * `seed` - The wallet seed bytes (must be at least 32 bytes)
+// * `seed` - The wallet seed bytes (must be at least 64 bytes)
 //
 // # Returns
 //
