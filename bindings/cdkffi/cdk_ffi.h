@@ -2138,6 +2138,11 @@ uint64_t uniffi_cdk_ffi_fn_method_walletrepository_create_wallet(uint64_t ptr, R
 uint64_t uniffi_cdk_ffi_fn_method_walletrepository_get_balances(uint64_t ptr
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_GET_TOKEN_DATA
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_GET_TOKEN_DATA
+uint64_t uniffi_cdk_ffi_fn_method_walletrepository_get_token_data(uint64_t ptr, uint64_t token
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_GET_WALLET
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_GET_WALLET
 uint64_t uniffi_cdk_ffi_fn_method_walletrepository_get_wallet(uint64_t ptr, RustBuffer mint_url, RustBuffer unit
@@ -4422,6 +4427,12 @@ uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_create_wallet(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_GET_BALANCES
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_GET_BALANCES
 uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_get_balances(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_GET_TOKEN_DATA
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_GET_TOKEN_DATA
+uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_get_token_data(void
     
 );
 #endif

@@ -2481,6 +2481,15 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_walletrepository_get_token_data()
+		})
+		if checksum != 37831 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletrepository_get_token_data: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_walletrepository_get_wallet()
 		})
 		if checksum != 57352 {
@@ -12691,6 +12700,8 @@ type WalletRepositoryInterface interface {
 	CreateWallet(mintUrl MintUrl, unit *CurrencyUnit, targetProofCount *uint32) error
 	// Get wallet balances for all mints
 	GetBalances() (map[WalletKey]Amount, error)
+	// Get token data, including the expected redemption fee, without redeeming it.
+	GetTokenData(token *Token) (TokenData, error)
 	// Get a specific wallet from WalletRepository by mint URL
 	//
 	// Returns an error if no wallet exists for the given mint URL.
@@ -12809,6 +12820,42 @@ func (_self *WalletRepository) GetBalances() (map[WalletKey]Amount, error) {
 		},
 		C.uniffi_cdk_ffi_fn_method_walletrepository_get_balances(
 			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Get token data, including the expected redemption fee, without redeeming it.
+func (_self *WalletRepository) GetTokenData(token *Token) (TokenData, error) {
+	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) TokenData {
+			return FfiConverterTokenDataINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_walletrepository_get_token_data(
+			_pointer, FfiConverterTokenINSTANCE.Lower(token)),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
