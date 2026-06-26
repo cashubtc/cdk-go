@@ -2128,9 +2128,19 @@ uint64_t uniffi_cdk_ffi_fn_constructor_walletrepository_new(RustBuffer mnemonic,
 uint64_t uniffi_cdk_ffi_fn_constructor_walletrepository_new_with_proxy(RustBuffer mnemonic, RustBuffer store, RustBuffer proxy_url, RustCallStatus *out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_BACKUP_MINTS
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_BACKUP_MINTS
+uint64_t uniffi_cdk_ffi_fn_method_walletrepository_backup_mints(uint64_t ptr, RustBuffer relays, RustBuffer options
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_CREATE_WALLET
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_CREATE_WALLET
 uint64_t uniffi_cdk_ffi_fn_method_walletrepository_create_wallet(uint64_t ptr, RustBuffer mint_url, RustBuffer unit, RustBuffer target_proof_count
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_FETCH_MINT_BACKUP
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_FETCH_MINT_BACKUP
+uint64_t uniffi_cdk_ffi_fn_method_walletrepository_fetch_mint_backup(uint64_t ptr, RustBuffer relays, RustBuffer options
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_GET_BALANCES
@@ -2158,9 +2168,19 @@ uint64_t uniffi_cdk_ffi_fn_method_walletrepository_get_wallets(uint64_t ptr
 uint64_t uniffi_cdk_ffi_fn_method_walletrepository_has_mint(uint64_t ptr, RustBuffer mint_url
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_MINT_BACKUP_PUBLIC_KEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_MINT_BACKUP_PUBLIC_KEY
+RustBuffer uniffi_cdk_ffi_fn_method_walletrepository_mint_backup_public_key(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_REMOVE_WALLET
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_REMOVE_WALLET
 uint64_t uniffi_cdk_ffi_fn_method_walletrepository_remove_wallet(uint64_t ptr, RustBuffer mint_url, RustBuffer currency_unit
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_RESTORE_MINTS
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_RESTORE_MINTS
+uint64_t uniffi_cdk_ffi_fn_method_walletrepository_restore_mints(uint64_t ptr, RustBuffer relays, int8_t add_mints, RustBuffer options
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLETREPOSITORY_SET_METADATA_CACHE_TTL_FOR_ALL_MINTS
@@ -4418,9 +4438,21 @@ uint16_t uniffi_cdk_ffi_checksum_method_walletdatabase_release_mint_quote(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_BACKUP_MINTS
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_BACKUP_MINTS
+uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_backup_mints(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_CREATE_WALLET
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_CREATE_WALLET
 uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_create_wallet(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_FETCH_MINT_BACKUP
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_FETCH_MINT_BACKUP
+uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_fetch_mint_backup(void
     
 );
 #endif
@@ -4454,9 +4486,21 @@ uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_has_mint(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_MINT_BACKUP_PUBLIC_KEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_MINT_BACKUP_PUBLIC_KEY
+uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_mint_backup_public_key(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_REMOVE_WALLET
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_REMOVE_WALLET
 uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_remove_wallet(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_RESTORE_MINTS
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLETREPOSITORY_RESTORE_MINTS
+uint16_t uniffi_cdk_ffi_checksum_method_walletrepository_restore_mints(void
     
 );
 #endif

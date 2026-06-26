@@ -2463,11 +2463,29 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_walletrepository_backup_mints()
+		})
+		if checksum != 56268 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletrepository_backup_mints: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_walletrepository_create_wallet()
 		})
 		if checksum != 32021 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletrepository_create_wallet: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_walletrepository_fetch_mint_backup()
+		})
+		if checksum != 24968 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletrepository_fetch_mint_backup: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -2517,11 +2535,29 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_walletrepository_mint_backup_public_key()
+		})
+		if checksum != 19486 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletrepository_mint_backup_public_key: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_walletrepository_remove_wallet()
 		})
 		if checksum != 57714 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletrepository_remove_wallet: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_walletrepository_restore_mints()
+		})
+		if checksum != 31371 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_walletrepository_restore_mints: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -12696,8 +12732,12 @@ func (c FfiConverterWalletDatabase) register() {
 
 // FFI-compatible WalletRepository
 type WalletRepositoryInterface interface {
+	// Backup the current mint list to Nostr relays using NUT-27.
+	BackupMints(relays []string, options BackupOptions) (BackupResult, error)
 	// Add a mint to this WalletRepository
 	CreateWallet(mintUrl MintUrl, unit *CurrencyUnit, targetProofCount *uint32) error
+	// Fetch the NUT-27 mint backup without adding mints to the repository.
+	FetchMintBackup(relays []string, options RestoreOptions) (MintBackup, error)
 	// Get wallet balances for all mints
 	GetBalances() (map[WalletKey]Amount, error)
 	// Get token data, including the expected redemption fee, without redeeming it.
@@ -12710,8 +12750,12 @@ type WalletRepositoryInterface interface {
 	GetWallets() []*Wallet
 	// Check if mint is in wallet
 	HasMint(mintUrl MintUrl) bool
+	// Get the NUT-27 mint backup public key as hex.
+	MintBackupPublicKey() (string, error)
 	// Remove mint from WalletRepository
 	RemoveWallet(mintUrl MintUrl, currencyUnit CurrencyUnit) error
+	// Restore the mint list from Nostr relays using NUT-27.
+	RestoreMints(relays []string, addMints bool, options RestoreOptions) (RestoreResult, error)
 	// Set metadata cache TTL (time-to-live) in seconds for all mints
 	//
 	// Controls how long cached mint metadata is considered fresh for all mints
@@ -12769,6 +12813,42 @@ func WalletRepositoryNewWithProxy(mnemonic string, store WalletStore, proxyUrl s
 	}
 }
 
+// Backup the current mint list to Nostr relays using NUT-27.
+func (_self *WalletRepository) BackupMints(relays []string, options BackupOptions) (BackupResult, error) {
+	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) BackupResult {
+			return FfiConverterBackupResultINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_walletrepository_backup_mints(
+			_pointer, FfiConverterSequenceStringINSTANCE.Lower(relays), FfiConverterBackupOptionsINSTANCE.Lower(options)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
 // Add a mint to this WalletRepository
 func (_self *WalletRepository) CreateWallet(mintUrl MintUrl, unit *CurrencyUnit, targetProofCount *uint32) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
@@ -12799,6 +12879,42 @@ func (_self *WalletRepository) CreateWallet(mintUrl MintUrl, unit *CurrencyUnit,
 	}
 
 	return err
+}
+
+// Fetch the NUT-27 mint backup without adding mints to the repository.
+func (_self *WalletRepository) FetchMintBackup(relays []string, options RestoreOptions) (MintBackup, error) {
+	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) MintBackup {
+			return FfiConverterMintBackupINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_walletrepository_fetch_mint_backup(
+			_pointer, FfiConverterSequenceStringINSTANCE.Lower(relays), FfiConverterRestoreOptionsINSTANCE.Lower(options)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
 }
 
 // Get wallet balances for all mints
@@ -12971,6 +13087,24 @@ func (_self *WalletRepository) HasMint(mintUrl MintUrl) bool {
 	return res
 }
 
+// Get the NUT-27 mint backup public key as hex.
+func (_self *WalletRepository) MintBackupPublicKey() (string, error) {
+	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
+	defer _self.ffiObject.decrementPointer()
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_method_walletrepository_mint_backup_public_key(
+				_pointer, _uniffiStatus),
+		}
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue string
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterStringINSTANCE.Lift(_uniffiRV), nil
+	}
+}
+
 // Remove mint from WalletRepository
 func (_self *WalletRepository) RemoveWallet(mintUrl MintUrl, currencyUnit CurrencyUnit) error {
 	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
@@ -13001,6 +13135,42 @@ func (_self *WalletRepository) RemoveWallet(mintUrl MintUrl, currencyUnit Curren
 	}
 
 	return err
+}
+
+// Restore the mint list from Nostr relays using NUT-27.
+func (_self *WalletRepository) RestoreMints(relays []string, addMints bool, options RestoreOptions) (RestoreResult, error) {
+	_pointer := _self.ffiObject.incrementPointer("*WalletRepository")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) RestoreResult {
+			return FfiConverterRestoreResultINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_walletrepository_restore_mints(
+			_pointer, FfiConverterSequenceStringINSTANCE.Lower(relays), FfiConverterBoolINSTANCE.Lower(addMints), FfiConverterRestoreOptionsINSTANCE.Lower(options)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
 }
 
 // Set metadata cache TTL (time-to-live) in seconds for all mints
