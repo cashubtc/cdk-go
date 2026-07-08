@@ -852,6 +852,24 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_func_nwc_derive_service_secret_key_from_seed()
+		})
+		if checksum != 58335 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_nwc_derive_service_secret_key_from_seed: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_func_nwc_get_pubkey()
+		})
+		if checksum != 3708 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_func_nwc_get_pubkey: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_func_parse_bip321_payment_instruction()
 		})
 		if checksum != 49418 {
@@ -1014,6 +1032,60 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_nwcservice_client_pubkey()
+		})
+		if checksum != 1577 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_nwcservice_client_pubkey: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_nwcservice_connection_uri()
+		})
+		if checksum != 23241 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_nwcservice_connection_uri: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_nwcservice_is_running()
+		})
+		if checksum != 55514 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_nwcservice_is_running: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_nwcservice_service_pubkey()
+		})
+		if checksum != 21181 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_nwcservice_service_pubkey: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_nwcservice_start()
+		})
+		if checksum != 29349 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_nwcservice_start: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_nwcservice_stop()
+		})
+		if checksum != 4827 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_nwcservice_stop: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_paymentrequest_amount()
 		})
 		if checksum != 17196 {
@@ -1149,6 +1221,33 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_pendingmelt_operation_id()
+		})
+		if checksum != 42211 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_pendingmelt_operation_id: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_pendingmelt_quote_id()
+		})
+		if checksum != 57764 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_pendingmelt_quote_id: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_pendingmelt_wait()
+		})
+		if checksum != 38621 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_pendingmelt_wait: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_preparedmelt_amount()
 		})
 		if checksum != 25790 {
@@ -1181,6 +1280,15 @@ func uniffiCheckChecksums() {
 		if checksum != 44853 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_preparedmelt_confirm: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_preparedmelt_confirm_prefer_async()
+		})
+		if checksum != 50879 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_preparedmelt_confirm_prefer_async: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -1482,6 +1590,15 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_wallet_check_melt_quote_status()
+		})
+		if checksum != 42910 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_check_melt_quote_status: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_method_wallet_check_mint_quote()
 		})
 		if checksum != 30988 {
@@ -1541,6 +1658,15 @@ func uniffiCheckChecksums() {
 		if checksum != 45745 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_fetch_mint_quote: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_method_wallet_finalize_pending_melts()
+		})
+		if checksum != 37779 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_method_wallet_finalize_pending_melts: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -3039,6 +3165,24 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_constructor_nwcservice_create()
+		})
+		if checksum != 38371 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_nwcservice_create: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_cdk_ffi_checksum_constructor_nwcservice_restore()
+		})
+		if checksum != 58630 {
+			// If this happens try cleaning and rebuilding your project
+			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_nwcservice_restore: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_constructor_paymentrequest_from_string()
 		})
 		if checksum != 4890 {
@@ -3870,6 +4014,274 @@ func (_ FfiDestroyerNpubCashClient) Destroy(value *NpubCashClient) {
 	value.Destroy()
 }
 
+// A NIP-47 Nostr Wallet Connect wallet service bound to a CDK wallet.
+//
+// Create one with [`NwcService::create`] (new connection) or
+// [`NwcService::restore`] (existing connection from a persisted client
+// secret), call [`NwcService::connection_uri`] to obtain the URI for the
+// Nostr app, then [`NwcService::start`] to begin servicing requests.
+type NwcServiceInterface interface {
+	// Hex-encoded public key of the authorized client.
+	ClientPubkey() string
+	// The `nostr+walletconnect://` connection URI to hand to the Nostr app.
+	ConnectionUri() string
+	// Whether the background service is currently running.
+	IsRunning() bool
+	// Hex-encoded public key of the wallet service (advertised in the URI).
+	ServicePubkey() string
+	// Start servicing requests in the background.
+	//
+	// Connects to the relays, publishes the info event, and begins answering
+	// commands. Returns immediately; the service runs until [`Self::stop`] is
+	// called. Per-request failures are answered with NIP-47 error responses
+	// and logged rather than surfaced here.
+	//
+	// # Errors
+	//
+	// Returns an error if the service is already running.
+	Start() error
+	// Stop the background service if it is running.
+	Stop() error
+}
+
+// A NIP-47 Nostr Wallet Connect wallet service bound to a CDK wallet.
+//
+// Create one with [`NwcService::create`] (new connection) or
+// [`NwcService::restore`] (existing connection from a persisted client
+// secret), call [`NwcService::connection_uri`] to obtain the URI for the
+// Nostr app, then [`NwcService::start`] to begin servicing requests.
+type NwcService struct {
+	ffiObject FfiObject
+}
+
+// Create a new wallet service with a freshly generated client connection.
+//
+// # Arguments
+//
+// * `wallet` - The CDK wallet that backs the service.
+// * `relays` - Relay URLs the service connects to and listens on.
+// * `service_secret_key` - Secret key of the wallet service (the signer).
+// Accepts hex or bech32 `nsec`. Derive a stable one from the wallet seed
+// with [`nwc_derive_service_secret_key_from_seed`].
+// * `max_payment_msat` - Optional cap (in millisatoshis) on any single
+// `pay_invoice` request.
+//
+// # Errors
+//
+// Returns an error if a key or relay URL is invalid, or no relays are given.
+func NwcServiceCreate(wallet *Wallet, relays []string, serviceSecretKey string, maxPaymentMsat *uint64) (*NwcService, error) {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
+		return C.uniffi_cdk_ffi_fn_constructor_nwcservice_create(FfiConverterWalletINSTANCE.Lower(wallet), FfiConverterSequenceStringINSTANCE.Lower(relays), FfiConverterStringINSTANCE.Lower(serviceSecretKey), FfiConverterOptionalUint64INSTANCE.Lower(maxPaymentMsat), _uniffiStatus)
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue *NwcService
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterNwcServiceINSTANCE.Lift(_uniffiRV), nil
+	}
+}
+
+// Restore a wallet service for an existing connection.
+//
+// Use this to rebuild a service after a restart from a persisted client
+// secret, so the previously issued connection URI keeps working.
+//
+// # Arguments
+//
+// * `client_secret_key` - The client secret from the original connection
+// URI (hex or `nsec`).
+//
+// See [`Self::create`] for the other arguments.
+//
+// # Errors
+//
+// Returns an error if a key or relay URL is invalid, or no relays are given.
+func NwcServiceRestore(wallet *Wallet, relays []string, serviceSecretKey string, clientSecretKey string, maxPaymentMsat *uint64) (*NwcService, error) {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
+		return C.uniffi_cdk_ffi_fn_constructor_nwcservice_restore(FfiConverterWalletINSTANCE.Lower(wallet), FfiConverterSequenceStringINSTANCE.Lower(relays), FfiConverterStringINSTANCE.Lower(serviceSecretKey), FfiConverterStringINSTANCE.Lower(clientSecretKey), FfiConverterOptionalUint64INSTANCE.Lower(maxPaymentMsat), _uniffiStatus)
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue *NwcService
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterNwcServiceINSTANCE.Lift(_uniffiRV), nil
+	}
+}
+
+// Hex-encoded public key of the authorized client.
+func (_self *NwcService) ClientPubkey() string {
+	_pointer := _self.ffiObject.incrementPointer("*NwcService")
+	defer _self.ffiObject.decrementPointer()
+	return FfiConverterStringINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_method_nwcservice_client_pubkey(
+				_pointer, _uniffiStatus),
+		}
+	}))
+}
+
+// The `nostr+walletconnect://` connection URI to hand to the Nostr app.
+func (_self *NwcService) ConnectionUri() string {
+	_pointer := _self.ffiObject.incrementPointer("*NwcService")
+	defer _self.ffiObject.decrementPointer()
+	return FfiConverterStringINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_method_nwcservice_connection_uri(
+				_pointer, _uniffiStatus),
+		}
+	}))
+}
+
+// Whether the background service is currently running.
+func (_self *NwcService) IsRunning() bool {
+	_pointer := _self.ffiObject.incrementPointer("*NwcService")
+	defer _self.ffiObject.decrementPointer()
+	return FfiConverterBoolINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) C.int8_t {
+		return C.uniffi_cdk_ffi_fn_method_nwcservice_is_running(
+			_pointer, _uniffiStatus)
+	}))
+}
+
+// Hex-encoded public key of the wallet service (advertised in the URI).
+func (_self *NwcService) ServicePubkey() string {
+	_pointer := _self.ffiObject.incrementPointer("*NwcService")
+	defer _self.ffiObject.decrementPointer()
+	return FfiConverterStringINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_method_nwcservice_service_pubkey(
+				_pointer, _uniffiStatus),
+		}
+	}))
+}
+
+// Start servicing requests in the background.
+//
+// Connects to the relays, publishes the info event, and begins answering
+// commands. Returns immediately; the service runs until [`Self::stop`] is
+// called. Per-request failures are answered with NIP-47 error responses
+// and logged rather than surfaced here.
+//
+// # Errors
+//
+// Returns an error if the service is already running.
+func (_self *NwcService) Start() error {
+	_pointer := _self.ffiObject.incrementPointer("*NwcService")
+	defer _self.ffiObject.decrementPointer()
+	_, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
+			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
+			return struct{}{}
+		},
+		// liftFn
+		func(_ struct{}) struct{} { return struct{}{} },
+		C.uniffi_cdk_ffi_fn_method_nwcservice_start(
+			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_void(handle)
+		},
+	)
+
+	if err == nil {
+		return nil
+	}
+
+	return err
+}
+
+// Stop the background service if it is running.
+func (_self *NwcService) Stop() error {
+	_pointer := _self.ffiObject.incrementPointer("*NwcService")
+	defer _self.ffiObject.decrementPointer()
+	_, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) struct{} {
+			C.ffi_cdk_ffi_rust_future_complete_void(handle, status)
+			return struct{}{}
+		},
+		// liftFn
+		func(_ struct{}) struct{} { return struct{}{} },
+		C.uniffi_cdk_ffi_fn_method_nwcservice_stop(
+			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_void(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_void(handle)
+		},
+	)
+
+	if err == nil {
+		return nil
+	}
+
+	return err
+}
+func (object *NwcService) Destroy() {
+	runtime.SetFinalizer(object, nil)
+	object.ffiObject.destroy()
+}
+
+type FfiConverterNwcService struct{}
+
+var FfiConverterNwcServiceINSTANCE = FfiConverterNwcService{}
+
+func (c FfiConverterNwcService) Lift(handle C.uint64_t) *NwcService {
+	result := &NwcService{
+		newFfiObject(
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_nwcservice(handle, status)
+			},
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_nwcservice(handle, status)
+			},
+		),
+	}
+	runtime.SetFinalizer(result, (*NwcService).Destroy)
+	return result
+}
+
+func (c FfiConverterNwcService) Read(reader io.Reader) *NwcService {
+	return c.Lift(C.uint64_t(readUint64(reader)))
+}
+
+func (c FfiConverterNwcService) Lower(value *NwcService) C.uint64_t {
+	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*NwcService")
+	defer value.ffiObject.decrementPointer()
+	return handle
+}
+
+func (c FfiConverterNwcService) Write(writer io.Writer, value *NwcService) {
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalNwcService(handle uint64) *NwcService {
+	return FfiConverterNwcServiceINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalNwcService(value *NwcService) uint64 {
+	return uint64(FfiConverterNwcServiceINSTANCE.Lower(value))
+}
+
+type FfiDestroyerNwcService struct{}
+
+func (_ FfiDestroyerNwcService) Destroy(value *NwcService) {
+	value.Destroy()
+}
+
 // NUT-18 Payment Request
 //
 // A payment request that can be shared to request Cashu tokens.
@@ -4284,6 +4696,170 @@ func (_ FfiDestroyerPaymentRequestPayload) Destroy(value *PaymentRequestPayload)
 	value.Destroy()
 }
 
+// A pending async melt accepted by the mint.
+//
+// FFI callers receive this handle when the mint accepts a melt for background
+// processing. Call [`PendingMelt::wait`] from a background task/coroutine to
+// poll existing wallet recovery until the melt settles.
+//
+// Mobile apps should also call [`crate::Wallet::recover_incomplete_sagas`] or
+// [`crate::Wallet::finalize_pending_melts`] on startup/resume, because
+// operating systems may suspend or cancel long-running background waits.
+type PendingMeltInterface interface {
+	// Operation ID for this pending melt saga.
+	OperationId() string
+	// Quote ID for this pending melt.
+	QuoteId() string
+	// Wait for this pending melt to complete.
+	//
+	// This method polls the wallet's existing melt recovery path until the
+	// pending saga finalizes or fails.
+	//
+	// This can wait for an extended period. Swift/Kotlin callers should run it
+	// in a cancellable background task or coroutine, not directly in UI
+	// control flow. If the app is suspended or killed before this returns,
+	// call `Wallet::recover_incomplete_sagas()` or
+	// `Wallet::finalize_pending_melts()` after restart/resume.
+	Wait() (FinalizedMelt, error)
+}
+
+// A pending async melt accepted by the mint.
+//
+// FFI callers receive this handle when the mint accepts a melt for background
+// processing. Call [`PendingMelt::wait`] from a background task/coroutine to
+// poll existing wallet recovery until the melt settles.
+//
+// Mobile apps should also call [`crate::Wallet::recover_incomplete_sagas`] or
+// [`crate::Wallet::finalize_pending_melts`] on startup/resume, because
+// operating systems may suspend or cancel long-running background waits.
+type PendingMelt struct {
+	ffiObject FfiObject
+}
+
+// Operation ID for this pending melt saga.
+func (_self *PendingMelt) OperationId() string {
+	_pointer := _self.ffiObject.incrementPointer("*PendingMelt")
+	defer _self.ffiObject.decrementPointer()
+	return FfiConverterStringINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_method_pendingmelt_operation_id(
+				_pointer, _uniffiStatus),
+		}
+	}))
+}
+
+// Quote ID for this pending melt.
+func (_self *PendingMelt) QuoteId() string {
+	_pointer := _self.ffiObject.incrementPointer("*PendingMelt")
+	defer _self.ffiObject.decrementPointer()
+	return FfiConverterStringINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_method_pendingmelt_quote_id(
+				_pointer, _uniffiStatus),
+		}
+	}))
+}
+
+// Wait for this pending melt to complete.
+//
+// This method polls the wallet's existing melt recovery path until the
+// pending saga finalizes or fails.
+//
+// This can wait for an extended period. Swift/Kotlin callers should run it
+// in a cancellable background task or coroutine, not directly in UI
+// control flow. If the app is suspended or killed before this returns,
+// call `Wallet::recover_incomplete_sagas()` or
+// `Wallet::finalize_pending_melts()` after restart/resume.
+func (_self *PendingMelt) Wait() (FinalizedMelt, error) {
+	_pointer := _self.ffiObject.incrementPointer("*PendingMelt")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) FinalizedMelt {
+			return FfiConverterFinalizedMeltINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_pendingmelt_wait(
+			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+func (object *PendingMelt) Destroy() {
+	runtime.SetFinalizer(object, nil)
+	object.ffiObject.destroy()
+}
+
+type FfiConverterPendingMelt struct{}
+
+var FfiConverterPendingMeltINSTANCE = FfiConverterPendingMelt{}
+
+func (c FfiConverterPendingMelt) Lift(handle C.uint64_t) *PendingMelt {
+	result := &PendingMelt{
+		newFfiObject(
+			handle,
+			func(handle C.uint64_t, status *C.RustCallStatus) C.uint64_t {
+				return C.uniffi_cdk_ffi_fn_clone_pendingmelt(handle, status)
+			},
+			func(handle C.uint64_t, status *C.RustCallStatus) {
+				C.uniffi_cdk_ffi_fn_free_pendingmelt(handle, status)
+			},
+		),
+	}
+	runtime.SetFinalizer(result, (*PendingMelt).Destroy)
+	return result
+}
+
+func (c FfiConverterPendingMelt) Read(reader io.Reader) *PendingMelt {
+	return c.Lift(C.uint64_t(readUint64(reader)))
+}
+
+func (c FfiConverterPendingMelt) Lower(value *PendingMelt) C.uint64_t {
+	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
+	// because the handle will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked handle.
+	handle := value.ffiObject.incrementPointer("*PendingMelt")
+	defer value.ffiObject.decrementPointer()
+	return handle
+}
+
+func (c FfiConverterPendingMelt) Write(writer io.Writer, value *PendingMelt) {
+	writeUint64(writer, uint64(c.Lower(value)))
+}
+
+func LiftFromExternalPendingMelt(handle uint64) *PendingMelt {
+	return FfiConverterPendingMeltINSTANCE.Lift(C.uint64_t(handle))
+}
+
+func LowerToExternalPendingMelt(value *PendingMelt) uint64 {
+	return uint64(FfiConverterPendingMeltINSTANCE.Lower(value))
+}
+
+type FfiDestroyerPendingMelt struct{}
+
+func (_ FfiDestroyerPendingMelt) Destroy(value *PendingMelt) {
+	value.Destroy()
+}
+
 // FFI-compatible PreparedMelt
 //
 // This wraps the data from a prepared melt operation along with a reference
@@ -4298,6 +4874,19 @@ type PreparedMeltInterface interface {
 	ChangeAmountWithoutSwap() Amount
 	// Confirm the prepared melt and execute the payment
 	Confirm() (FinalizedMelt, error)
+	// Confirm the prepared melt using NUT-05 async support when the mint accepts it.
+	//
+	// If the melt completes immediately, this returns
+	// `MeltConfirmOutcome::Paid`. If the mint accepts the payment for
+	// background processing, this returns `MeltConfirmOutcome::Pending` with a
+	// `PendingMelt` handle.
+	//
+	// FFI callers should call `PendingMelt::wait()` from a background
+	// task/coroutine to poll for completion. Mobile apps should also call
+	// `recover_incomplete_sagas()` or `finalize_pending_melts()` on
+	// startup/resume, because operating systems may suspend or cancel
+	// long-running background waits.
+	ConfirmPreferAsync() (MeltConfirmOutcome, error)
 	// Confirm the prepared melt with custom options
 	ConfirmWithOptions(options MeltConfirmOptions) (FinalizedMelt, error)
 	// Get the fee reserve from the quote
@@ -4407,6 +4996,53 @@ func (_self *PreparedMelt) Confirm() (FinalizedMelt, error) {
 			return FfiConverterFinalizedMeltINSTANCE.Lift(ffi)
 		},
 		C.uniffi_cdk_ffi_fn_method_preparedmelt_confirm(
+			_pointer),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Confirm the prepared melt using NUT-05 async support when the mint accepts it.
+//
+// If the melt completes immediately, this returns
+// `MeltConfirmOutcome::Paid`. If the mint accepts the payment for
+// background processing, this returns `MeltConfirmOutcome::Pending` with a
+// `PendingMelt` handle.
+//
+// FFI callers should call `PendingMelt::wait()` from a background
+// task/coroutine to poll for completion. Mobile apps should also call
+// `recover_incomplete_sagas()` or `finalize_pending_melts()` on
+// startup/resume, because operating systems may suspend or cancel
+// long-running background waits.
+func (_self *PreparedMelt) ConfirmPreferAsync() (MeltConfirmOutcome, error) {
+	_pointer := _self.ffiObject.incrementPointer("*PreparedMelt")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) MeltConfirmOutcome {
+			return FfiConverterMeltConfirmOutcomeINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_preparedmelt_confirm_prefer_async(
 			_pointer),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
@@ -5168,6 +5804,8 @@ type WalletInterface interface {
 	// This function checks orphaned pending proofs (not managed by active sagas)
 	// with the mint and marks spent proofs accordingly.
 	CheckAllPendingProofs() (Amount, error)
+	// Check melt quote status and attempt to complete any in-progress saga.
+	CheckMeltQuoteStatus(quoteId string) (MeltQuote, error)
 	// Check a mint quote status from the mint.
 	//
 	// Calls `GET /v1/mint/quote/{method}/{quote_id}` per NUT-04.
@@ -5208,6 +5846,8 @@ type WalletInterface interface {
 	// is not already stored locally. If the quote exists locally, the stored
 	// payment method will be used and this parameter is ignored.
 	FetchMintQuote(quoteId string, paymentMethod *PaymentMethod) (MintQuote, error)
+	// Finalize pending melt operations for this wallet.
+	FinalizePendingMelts() ([]FinalizedMelt, error)
 	// Get the active keyset for the wallet's unit
 	GetActiveKeyset() (KeySetInfo, error)
 	// Get fee for count of proofs in a keyset
@@ -5521,6 +6161,42 @@ func (_self *Wallet) CheckAllPendingProofs() (Amount, error) {
 	return res, err
 }
 
+// Check melt quote status and attempt to complete any in-progress saga.
+func (_self *Wallet) CheckMeltQuoteStatus(quoteId string) (MeltQuote, error) {
+	_pointer := _self.ffiObject.incrementPointer("*Wallet")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) MeltQuote {
+			return FfiConverterMeltQuoteINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_wallet_check_melt_quote_status(
+			_pointer, FfiConverterStringINSTANCE.Lower(quoteId)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
 // Check a mint quote status from the mint.
 //
 // Calls `GET /v1/mint/quote/{method}/{quote_id}` per NUT-04.
@@ -5780,6 +6456,42 @@ func (_self *Wallet) FetchMintQuote(quoteId string, paymentMethod *PaymentMethod
 		},
 		C.uniffi_cdk_ffi_fn_method_wallet_fetch_mint_quote(
 			_pointer, FfiConverterStringINSTANCE.Lower(quoteId), FfiConverterOptionalPaymentMethodINSTANCE.Lower(paymentMethod)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_cdk_ffi_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Finalize pending melt operations for this wallet.
+func (_self *Wallet) FinalizePendingMelts() ([]FinalizedMelt, error) {
+	_pointer := _self.ffiObject.incrementPointer("*Wallet")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[*FfiError](
+		FfiConverterFfiErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_cdk_ffi_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) []FinalizedMelt {
+			return FfiConverterSequenceFinalizedMeltINSTANCE.Lift(ffi)
+		},
+		C.uniffi_cdk_ffi_fn_method_wallet_finalize_pending_melts(
+			_pointer),
 		// pollFn
 		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
 			C.ffi_cdk_ffi_rust_future_poll_rust_buffer(handle, continuation, data)
@@ -19400,6 +20112,84 @@ type FfiDestroyerKeysetFilter struct{}
 func (_ FfiDestroyerKeysetFilter) Destroy(value KeysetFilter) {
 }
 
+// Result of async-preferred melt confirmation.
+//
+// `Paid` means the melt finalized during confirmation. `Pending` means the
+// mint accepted the melt for asynchronous processing; call
+// [`PendingMelt::wait`] to complete the normal app flow.
+type MeltConfirmOutcome interface {
+	Destroy()
+}
+
+// Melt finalized during confirmation.
+type MeltConfirmOutcomePaid struct {
+	Finalized FinalizedMelt
+}
+
+func (e MeltConfirmOutcomePaid) Destroy() {
+	FfiDestroyerFinalizedMelt{}.Destroy(e.Finalized)
+}
+
+// Mint accepted async melt processing and the payment is still pending.
+type MeltConfirmOutcomePending struct {
+	Pending *PendingMelt
+}
+
+func (e MeltConfirmOutcomePending) Destroy() {
+	FfiDestroyerPendingMelt{}.Destroy(e.Pending)
+}
+
+type FfiConverterMeltConfirmOutcome struct{}
+
+var FfiConverterMeltConfirmOutcomeINSTANCE = FfiConverterMeltConfirmOutcome{}
+
+func (c FfiConverterMeltConfirmOutcome) Lift(rb RustBufferI) MeltConfirmOutcome {
+	return LiftFromRustBuffer[MeltConfirmOutcome](c, rb)
+}
+
+func (c FfiConverterMeltConfirmOutcome) Lower(value MeltConfirmOutcome) C.RustBuffer {
+	return LowerIntoRustBuffer[MeltConfirmOutcome](c, value)
+}
+
+func (c FfiConverterMeltConfirmOutcome) LowerExternal(value MeltConfirmOutcome) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[MeltConfirmOutcome](c, value))
+}
+func (FfiConverterMeltConfirmOutcome) Read(reader io.Reader) MeltConfirmOutcome {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return MeltConfirmOutcomePaid{
+			FfiConverterFinalizedMeltINSTANCE.Read(reader),
+		}
+	case 2:
+		return MeltConfirmOutcomePending{
+			FfiConverterPendingMeltINSTANCE.Read(reader),
+		}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterMeltConfirmOutcome.Read()", id))
+	}
+}
+
+func (FfiConverterMeltConfirmOutcome) Write(writer io.Writer, value MeltConfirmOutcome) {
+	switch variant_value := value.(type) {
+	case MeltConfirmOutcomePaid:
+		writeInt32(writer, 1)
+		FfiConverterFinalizedMeltINSTANCE.Write(writer, variant_value.Finalized)
+	case MeltConfirmOutcomePending:
+		writeInt32(writer, 2)
+		FfiConverterPendingMeltINSTANCE.Write(writer, variant_value.Pending)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterMeltConfirmOutcome.Write", value))
+	}
+}
+
+type FfiDestroyerMeltConfirmOutcome struct{}
+
+func (_ FfiDestroyerMeltConfirmOutcome) Destroy(value MeltConfirmOutcome) {
+	value.Destroy()
+}
+
 // FFI-compatible MeltOptions
 type MeltOptions interface {
 	Destroy()
@@ -22214,6 +23004,53 @@ func (FfiDestroyerSequenceContactInfo) Destroy(sequence []ContactInfo) {
 	}
 }
 
+type FfiConverterSequenceFinalizedMelt struct{}
+
+var FfiConverterSequenceFinalizedMeltINSTANCE = FfiConverterSequenceFinalizedMelt{}
+
+func (c FfiConverterSequenceFinalizedMelt) Lift(rb RustBufferI) []FinalizedMelt {
+	return LiftFromRustBuffer[[]FinalizedMelt](c, rb)
+}
+
+func (c FfiConverterSequenceFinalizedMelt) Read(reader io.Reader) []FinalizedMelt {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]FinalizedMelt, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterFinalizedMeltINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceFinalizedMelt) Lower(value []FinalizedMelt) C.RustBuffer {
+	return LowerIntoRustBuffer[[]FinalizedMelt](c, value)
+}
+
+func (c FfiConverterSequenceFinalizedMelt) LowerExternal(value []FinalizedMelt) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]FinalizedMelt](c, value))
+}
+
+func (c FfiConverterSequenceFinalizedMelt) Write(writer io.Writer, value []FinalizedMelt) {
+	if len(value) > math.MaxInt32 {
+		panic("[]FinalizedMelt is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterFinalizedMeltINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceFinalizedMelt struct{}
+
+func (FfiDestroyerSequenceFinalizedMelt) Destroy(sequence []FinalizedMelt) {
+	for _, value := range sequence {
+		FfiDestroyerFinalizedMelt{}.Destroy(value)
+	}
+}
+
 type FfiConverterSequenceKeySetInfo struct{}
 
 var FfiConverterSequenceKeySetInfoINSTANCE = FfiConverterSequenceKeySetInfo{}
@@ -24345,6 +25182,48 @@ func NpubcashQuoteToMintQuote(quote NpubCashQuote) MintQuote {
 			inner: C.uniffi_cdk_ffi_fn_func_npubcash_quote_to_mint_quote(FfiConverterNpubCashQuoteINSTANCE.Lower(quote), _uniffiStatus),
 		}
 	}))
+}
+
+// Derive the NWC wallet-service secret key from a wallet seed.
+//
+// Returns a hex-encoded secret key for use as `service_secret_key`. Deriving
+// from the seed keeps the connection URI stable across restarts. Uses the
+// NIP-06 path `m/44'/1237'/1'/0/0`, distinct from the npub.cash key.
+//
+// # Errors
+//
+// Returns an error if the seed is shorter than 64 bytes or derivation fails.
+func NwcDeriveServiceSecretKeyFromSeed(seed []byte) (string, error) {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_func_nwc_derive_service_secret_key_from_seed(FfiConverterBytesINSTANCE.Lower(seed), _uniffiStatus),
+		}
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue string
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterStringINSTANCE.Lift(_uniffiRV), nil
+	}
+}
+
+// Get the hex-encoded public key for a Nostr secret key (hex or `nsec`).
+//
+// # Errors
+//
+// Returns an error if the secret key is invalid.
+func NwcGetPubkey(nostrSecretKey string) (string, error) {
+	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_cdk_ffi_fn_func_nwc_get_pubkey(FfiConverterStringINSTANCE.Lower(nostrSecretKey), _uniffiStatus),
+		}
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue string
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterStringINSTANCE.Lift(_uniffiRV), nil
+	}
 }
 
 // Parse a BIP 321 `bitcoin:` URI or standalone payment instruction string,
