@@ -3239,7 +3239,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_constructor_walletrepository_new()
 		})
-		if checksum != 16691 {
+		if checksum != 35127 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_walletrepository_new: UniFFI API checksum mismatch")
 		}
@@ -3248,7 +3248,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_cdk_ffi_checksum_constructor_walletrepository_new_with_proxy()
 		})
-		if checksum != 34392 {
+		if checksum != 18844 {
 			// If this happens try cleaning and rebuilding your project
 			panic("cdk_ffi: uniffi_cdk_ffi_checksum_constructor_walletrepository_new_with_proxy: UniFFI API checksum mismatch")
 		}
@@ -13494,7 +13494,9 @@ type WalletRepository struct {
 	ffiObject FfiObject
 }
 
-// Create a new WalletRepository
+// Create a new WalletRepository from locally persisted wallet state.
+//
+// Construction does not make network requests to configured mints.
 //
 // Accepts a `WalletStore` which can be:
 // - `Sqlite { path }` — built-in Rust SQLite backend
@@ -13512,7 +13514,11 @@ func NewWalletRepository(mnemonic string, store WalletStore) (*WalletRepository,
 	}
 }
 
-// Create a new WalletRepository with proxy configuration
+// Create a new WalletRepository with proxy configuration.
+//
+// Construction restores locally persisted wallet state without making
+// network requests to configured mints. The proxy is used by subsequent
+// mint operations.
 func WalletRepositoryNewWithProxy(mnemonic string, store WalletStore, proxyUrl string) (*WalletRepository, error) {
 	_uniffiRV, _uniffiErr := rustCallWithError[*FfiError](FfiConverterFfiError{}, func(_uniffiStatus *C.RustCallStatus) C.uint64_t {
 		return C.uniffi_cdk_ffi_fn_constructor_walletrepository_new_with_proxy(FfiConverterStringINSTANCE.Lower(mnemonic), FfiConverterWalletStoreINSTANCE.Lower(store), FfiConverterStringINSTANCE.Lower(proxyUrl), _uniffiStatus)
