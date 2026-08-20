@@ -18557,6 +18557,8 @@ type MintInfo struct {
 	Time *uint64
 	// terms of url service of the mint
 	TosUrl *string
+	// max length the mint accepts for any array in a request
+	MaxArrayLength *uint64
 }
 
 func (r *MintInfo) Destroy() {
@@ -18572,6 +18574,7 @@ func (r *MintInfo) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.Motd)
 	FfiDestroyerOptionalUint64{}.Destroy(r.Time)
 	FfiDestroyerOptionalString{}.Destroy(r.TosUrl)
+	FfiDestroyerOptionalUint64{}.Destroy(r.MaxArrayLength)
 }
 
 type FfiConverterMintInfo struct{}
@@ -18596,6 +18599,7 @@ func (c FfiConverterMintInfo) Read(reader io.Reader) MintInfo {
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalUint64INSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
 	}
 }
 
@@ -18620,6 +18624,7 @@ func (c FfiConverterMintInfo) Write(writer io.Writer, value MintInfo) {
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.Motd)
 	FfiConverterOptionalUint64INSTANCE.Write(writer, value.Time)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.TosUrl)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.MaxArrayLength)
 }
 
 type FfiDestroyerMintInfo struct{}
