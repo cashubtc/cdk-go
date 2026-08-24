@@ -18557,6 +18557,8 @@ type MintInfo struct {
 	Time *uint64
 	// terms of url service of the mint
 	TosUrl *string
+	// max length the mint accepts for any array in a request
+	MaxArrayLength *uint64
 }
 
 func (r *MintInfo) Destroy() {
@@ -18572,6 +18574,7 @@ func (r *MintInfo) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.Motd)
 	FfiDestroyerOptionalUint64{}.Destroy(r.Time)
 	FfiDestroyerOptionalString{}.Destroy(r.TosUrl)
+	FfiDestroyerOptionalUint64{}.Destroy(r.MaxArrayLength)
 }
 
 type FfiConverterMintInfo struct{}
@@ -18596,6 +18599,7 @@ func (c FfiConverterMintInfo) Read(reader io.Reader) MintInfo {
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalUint64INSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
 	}
 }
 
@@ -18620,6 +18624,7 @@ func (c FfiConverterMintInfo) Write(writer io.Writer, value MintInfo) {
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.Motd)
 	FfiConverterOptionalUint64INSTANCE.Write(writer, value.Time)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.TosUrl)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.MaxArrayLength)
 }
 
 type FfiDestroyerMintInfo struct{}
@@ -19989,13 +19994,13 @@ type ProofStateUpdate struct {
 	// Current state
 	State ProofState
 	// Optional witness data
-	Witness *string
+	Witness *Witness
 }
 
 func (r *ProofStateUpdate) Destroy() {
 	FfiDestroyerString{}.Destroy(r.Y)
 	FfiDestroyerProofState{}.Destroy(r.State)
-	FfiDestroyerOptionalString{}.Destroy(r.Witness)
+	FfiDestroyerOptionalWitness{}.Destroy(r.Witness)
 }
 
 type FfiConverterProofStateUpdate struct{}
@@ -20010,7 +20015,7 @@ func (c FfiConverterProofStateUpdate) Read(reader io.Reader) ProofStateUpdate {
 	return ProofStateUpdate{
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterProofStateINSTANCE.Read(reader),
-		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalWitnessINSTANCE.Read(reader),
 	}
 }
 
@@ -20025,7 +20030,7 @@ func (c FfiConverterProofStateUpdate) LowerExternal(value ProofStateUpdate) Exte
 func (c FfiConverterProofStateUpdate) Write(writer io.Writer, value ProofStateUpdate) {
 	FfiConverterStringINSTANCE.Write(writer, value.Y)
 	FfiConverterProofStateINSTANCE.Write(writer, value.State)
-	FfiConverterOptionalStringINSTANCE.Write(writer, value.Witness)
+	FfiConverterOptionalWitnessINSTANCE.Write(writer, value.Witness)
 }
 
 type FfiDestroyerProofStateUpdate struct{}
