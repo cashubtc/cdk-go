@@ -370,6 +370,20 @@ static void call_UniffiForeignFutureCompleteVoid(
 
 
 #endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_NOSTR_INBOX_LISTENER_METHOD0
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_NOSTR_INBOX_LISTENER_METHOD0
+typedef void (*UniffiCallbackInterfaceNostrInboxListenerMethod0)(uint64_t uniffi_handle, RustBuffer event, void* uniffi_out_return, RustCallStatus* callStatus );
+
+// Making function static works arround:
+// https://github.com/golang/go/issues/11263
+static void call_UniffiCallbackInterfaceNostrInboxListenerMethod0(
+				UniffiCallbackInterfaceNostrInboxListenerMethod0 cb, uint64_t uniffi_handle, RustBuffer event, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, event, uniffi_out_return, callStatus );
+}
+
+
+#endif
 #ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_WALLET_DATABASE_METHOD0
 #define UNIFFI_FFIDEF_CALLBACK_INTERFACE_WALLET_DATABASE_METHOD0
 typedef void (*UniffiCallbackInterfaceWalletDatabaseMethod0)(uint64_t uniffi_handle, RustBuffer mint_url, UniffiForeignFutureCompleteRustBuffer uniffi_future_callback, uint64_t uniffi_callback_data, UniffiForeignFutureDroppedCallbackStruct* uniffi_out_dropped_callback);
@@ -1084,6 +1098,15 @@ static void call_UniffiCallbackInterfaceWalletDatabaseMethod50(
 
 
 #endif
+#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_NOSTR_INBOX_LISTENER
+#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_NOSTR_INBOX_LISTENER
+typedef struct UniffiVTableCallbackInterfaceNostrInboxListener {
+    UniffiCallbackInterfaceFree uniffiFree;
+    UniffiCallbackInterfaceClone uniffiClone;
+    UniffiCallbackInterfaceNostrInboxListenerMethod0 onEvent;
+} UniffiVTableCallbackInterfaceNostrInboxListener;
+
+#endif
 #ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_WALLET_DATABASE
 #define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_WALLET_DATABASE
 typedef struct UniffiVTableCallbackInterfaceWalletDatabase {
@@ -1168,6 +1191,56 @@ uint64_t uniffi_cdk_ffi_fn_method_activesubscription_recv(uint64_t ptr
 uint64_t uniffi_cdk_ffi_fn_method_activesubscription_try_recv(uint64_t ptr
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_NOSTRINBOX
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_NOSTRINBOX
+uint64_t uniffi_cdk_ffi_fn_clone_nostrinbox(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FREE_NOSTRINBOX
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FREE_NOSTRINBOX
+void uniffi_cdk_ffi_fn_free_nostrinbox(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CONSTRUCTOR_NOSTRINBOX_NEW
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CONSTRUCTOR_NOSTRINBOX_NEW
+uint64_t uniffi_cdk_ffi_fn_constructor_nostrinbox_new(RustBuffer nostr_secret_key, RustBuffer relays, RustBuffer since, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOX_PUBKEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOX_PUBKEY
+RustBuffer uniffi_cdk_ffi_fn_method_nostrinbox_pubkey(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOX_START
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOX_START
+uint64_t uniffi_cdk_ffi_fn_method_nostrinbox_start(uint64_t ptr, uint64_t listener
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOX_STOP
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOX_STOP
+void uniffi_cdk_ffi_fn_method_nostrinbox_stop(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_NOSTRINBOXLISTENER
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_NOSTRINBOXLISTENER
+uint64_t uniffi_cdk_ffi_fn_clone_nostrinboxlistener(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FREE_NOSTRINBOXLISTENER
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FREE_NOSTRINBOXLISTENER
+void uniffi_cdk_ffi_fn_free_nostrinboxlistener(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_INIT_CALLBACK_VTABLE_NOSTRINBOXLISTENER
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_INIT_CALLBACK_VTABLE_NOSTRINBOXLISTENER
+void uniffi_cdk_ffi_fn_init_callback_vtable_nostrinboxlistener(UniffiVTableCallbackInterfaceNostrInboxListener* vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOXLISTENER_ON_EVENT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NOSTRINBOXLISTENER_ON_EVENT
+void uniffi_cdk_ffi_fn_method_nostrinboxlistener_on_event(uint64_t ptr, RustBuffer event, RustCallStatus *out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_NOSTRWAITINFO
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_NOSTRWAITINFO
 uint64_t uniffi_cdk_ffi_fn_clone_nostrwaitinfo(uint64_t handle, RustCallStatus *out_status
@@ -1213,14 +1286,29 @@ void uniffi_cdk_ffi_fn_free_npubcashclient(uint64_t handle, RustCallStatus *out_
 uint64_t uniffi_cdk_ffi_fn_constructor_npubcashclient_new(RustBuffer base_url, RustBuffer nostr_secret_key, RustCallStatus *out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_GET_MISSING_QUOTES
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_GET_MISSING_QUOTES
+uint64_t uniffi_cdk_ffi_fn_method_npubcashclient_get_missing_quotes(uint64_t ptr, RustBuffer quote_ids
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_GET_QUOTES
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_GET_QUOTES
 uint64_t uniffi_cdk_ffi_fn_method_npubcashclient_get_quotes(uint64_t ptr, RustBuffer since
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_GET_USER_INFO
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_GET_USER_INFO
+uint64_t uniffi_cdk_ffi_fn_method_npubcashclient_get_user_info(uint64_t ptr
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_SET_MINT_URL
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_SET_MINT_URL
 uint64_t uniffi_cdk_ffi_fn_method_npubcashclient_set_mint_url(uint64_t ptr, RustBuffer mint_url
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_SET_QUOTE_LOCKING
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_NPUBCASHCLIENT_SET_QUOTE_LOCKING
+uint64_t uniffi_cdk_ffi_fn_method_npubcashclient_set_quote_locking(uint64_t ptr, int8_t lock_quotes
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_NWCSERVICE
@@ -1508,6 +1596,71 @@ RustBuffer uniffi_cdk_ffi_fn_method_preparedmelt_total_fee(uint64_t ptr, RustCal
 RustBuffer uniffi_cdk_ffi_fn_method_preparedmelt_total_fee_with_swap(uint64_t ptr, RustCallStatus *out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_PREPAREDPAYMENTREQUEST
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_PREPAREDPAYMENTREQUEST
+uint64_t uniffi_cdk_ffi_fn_clone_preparedpaymentrequest(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FREE_PREPAREDPAYMENTREQUEST
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FREE_PREPAREDPAYMENTREQUEST
+void uniffi_cdk_ffi_fn_free_preparedpaymentrequest(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_CANCEL
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_CANCEL
+uint64_t uniffi_cdk_ffi_fn_method_preparedpaymentrequest_cancel(uint64_t ptr
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_CONFIRM
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_CONFIRM
+uint64_t uniffi_cdk_ffi_fn_method_preparedpaymentrequest_confirm(uint64_t ptr
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_INPUT_FEE
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_INPUT_FEE
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_input_fee(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_METHOD
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_METHOD
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_method(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_METHOD_FEE
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_METHOD_FEE
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_method_fee(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_MINT_URL
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_MINT_URL
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_mint_url(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_OPERATION_ID
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_OPERATION_ID
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_operation_id(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_PAYMENT_AMOUNT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_PAYMENT_AMOUNT
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_payment_amount(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_REQUESTED_AMOUNT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_REQUESTED_AMOUNT
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_requested_amount(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_TOTAL_AMOUNT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_TOTAL_AMOUNT
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_total_amount(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_UNIT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_PREPAREDPAYMENTREQUEST_UNIT
+RustBuffer uniffi_cdk_ffi_fn_method_preparedpaymentrequest_unit(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_PREPAREDSEND
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_CLONE_PREPAREDSEND
 uint64_t uniffi_cdk_ffi_fn_clone_preparedsend(uint64_t handle, RustCallStatus *out_status
@@ -1769,9 +1922,19 @@ uint64_t uniffi_cdk_ffi_fn_method_wallet_check_proofs_spent(uint64_t ptr, RustBu
 uint64_t uniffi_cdk_ffi_fn_method_wallet_check_send_status(uint64_t ptr, RustBuffer operation_id
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_CLAIM_NPUBCASH_QUOTES
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_CLAIM_NPUBCASH_QUOTES
+uint64_t uniffi_cdk_ffi_fn_method_wallet_claim_npubcash_quotes(uint64_t ptr
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_CROSS_MINT_TRANSFER_QUOTE_MAX
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_CROSS_MINT_TRANSFER_QUOTE_MAX
 uint64_t uniffi_cdk_ffi_fn_method_wallet_cross_mint_transfer_quote_max(uint64_t ptr, uint64_t target_wallet
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_ENABLE_NPUBCASH
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_ENABLE_NPUBCASH
+uint64_t uniffi_cdk_ffi_fn_method_wallet_enable_npubcash(uint64_t ptr, RustBuffer npubcash_url
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_FETCH_MINT_INFO
@@ -1812,6 +1975,11 @@ uint64_t uniffi_cdk_ffi_fn_method_wallet_get_keyset_fees_and_amounts_by_id(uint6
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_GET_KEYSET_FEES_BY_ID
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_GET_KEYSET_FEES_BY_ID
 uint64_t uniffi_cdk_ffi_fn_method_wallet_get_keyset_fees_by_id(uint64_t ptr, RustBuffer keyset_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_GET_NPUBCASH_USER_INFO
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_GET_NPUBCASH_USER_INFO
+uint64_t uniffi_cdk_ffi_fn_method_wallet_get_npubcash_user_info(uint64_t ptr
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_GET_PENDING_SENDS
@@ -1919,11 +2087,6 @@ uint64_t uniffi_cdk_ffi_fn_method_wallet_mint_unissued_quotes(uint64_t ptr
 RustBuffer uniffi_cdk_ffi_fn_method_wallet_mint_url(uint64_t ptr, RustCallStatus *out_status
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PAY_REQUEST
-#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PAY_REQUEST
-uint64_t uniffi_cdk_ffi_fn_method_wallet_pay_request(uint64_t ptr, uint64_t payment_request, RustBuffer custom_amount
-);
-#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PREPARE_MELT
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PREPARE_MELT
 uint64_t uniffi_cdk_ffi_fn_method_wallet_prepare_melt(uint64_t ptr, RustBuffer quote_id
@@ -1937,6 +2100,11 @@ uint64_t uniffi_cdk_ffi_fn_method_wallet_prepare_melt_proofs(uint64_t ptr, RustB
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PREPARE_MELT_TOKEN
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PREPARE_MELT_TOKEN
 uint64_t uniffi_cdk_ffi_fn_method_wallet_prepare_melt_token(uint64_t ptr, RustBuffer quote_id, RustBuffer encoded_token
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PREPARE_PAY_REQUEST
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PREPARE_PAY_REQUEST
+uint64_t uniffi_cdk_ffi_fn_method_wallet_prepare_pay_request(uint64_t ptr, uint64_t payment_request, RustBuffer custom_amount
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_PREPARE_SEND
@@ -2027,6 +2195,11 @@ uint64_t uniffi_cdk_ffi_fn_method_wallet_subscribe_mint_quote_state(uint64_t ptr
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_SWAP
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_SWAP
 uint64_t uniffi_cdk_ffi_fn_method_wallet_swap(uint64_t ptr, RustBuffer amount, RustBuffer amount_split_target, RustBuffer input_proofs, RustBuffer spending_conditions, int8_t include_fees
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_SYNC_MISSING_NPUBCASH_QUOTES
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_SYNC_MISSING_NPUBCASH_QUOTES
+uint64_t uniffi_cdk_ffi_fn_method_wallet_sync_missing_npubcash_quotes(uint64_t ptr
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_METHOD_WALLET_TOTAL_BALANCE
@@ -2962,6 +3135,27 @@ RustBuffer uniffi_cdk_ffi_fn_func_mint_quote_total_amount(RustBuffer quote, Rust
 RustBuffer uniffi_cdk_ffi_fn_func_mnemonic_to_entropy(RustBuffer mnemonic, RustCallStatus *out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NIP44_DECRYPT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NIP44_DECRYPT
+RustBuffer uniffi_cdk_ffi_fn_func_nip44_decrypt(RustBuffer nostr_secret_key, RustBuffer sender_pubkey, RustBuffer payload, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NIP44_ENCRYPT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NIP44_ENCRYPT
+RustBuffer uniffi_cdk_ffi_fn_func_nip44_encrypt(RustBuffer nostr_secret_key, RustBuffer recipient_pubkey, RustBuffer plaintext, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NOSTR_GENERATE_SECRET_KEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NOSTR_GENERATE_SECRET_KEY
+RustBuffer uniffi_cdk_ffi_fn_func_nostr_generate_secret_key(RustCallStatus *out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NOSTR_GET_PUBKEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NOSTR_GET_PUBKEY
+RustBuffer uniffi_cdk_ffi_fn_func_nostr_get_pubkey(RustBuffer nostr_secret_key, RustCallStatus *out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NPUBCASH_DERIVE_SECRET_KEY_FROM_SEED
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_FN_FUNC_NPUBCASH_DERIVE_SECRET_KEY_FROM_SEED
 RustBuffer uniffi_cdk_ffi_fn_func_npubcash_derive_secret_key_from_seed(RustBuffer seed, RustCallStatus *out_status
@@ -3602,6 +3796,30 @@ uint16_t uniffi_cdk_ffi_checksum_func_mnemonic_to_entropy(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NIP44_DECRYPT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NIP44_DECRYPT
+uint16_t uniffi_cdk_ffi_checksum_func_nip44_decrypt(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NIP44_ENCRYPT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NIP44_ENCRYPT
+uint16_t uniffi_cdk_ffi_checksum_func_nip44_encrypt(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NOSTR_GENERATE_SECRET_KEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NOSTR_GENERATE_SECRET_KEY
+uint16_t uniffi_cdk_ffi_checksum_func_nostr_generate_secret_key(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NOSTR_GET_PUBKEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NOSTR_GET_PUBKEY
+uint16_t uniffi_cdk_ffi_checksum_func_nostr_get_pubkey(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NPUBCASH_DERIVE_SECRET_KEY_FROM_SEED
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_FUNC_NPUBCASH_DERIVE_SECRET_KEY_FROM_SEED
 uint16_t uniffi_cdk_ffi_checksum_func_npubcash_derive_secret_key_from_seed(void
@@ -3716,6 +3934,30 @@ uint16_t uniffi_cdk_ffi_checksum_method_activesubscription_try_recv(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOX_PUBKEY
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOX_PUBKEY
+uint16_t uniffi_cdk_ffi_checksum_method_nostrinbox_pubkey(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOX_START
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOX_START
+uint16_t uniffi_cdk_ffi_checksum_method_nostrinbox_start(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOX_STOP
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOX_STOP
+uint16_t uniffi_cdk_ffi_checksum_method_nostrinbox_stop(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOXLISTENER_ON_EVENT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRINBOXLISTENER_ON_EVENT
+uint16_t uniffi_cdk_ffi_checksum_method_nostrinboxlistener_on_event(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRWAITINFO_MINT_PREFERRED
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NOSTRWAITINFO_MINT_PREFERRED
 uint16_t uniffi_cdk_ffi_checksum_method_nostrwaitinfo_mint_preferred(void
@@ -3740,15 +3982,33 @@ uint16_t uniffi_cdk_ffi_checksum_method_nostrwaitinfo_relays(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_GET_MISSING_QUOTES
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_GET_MISSING_QUOTES
+uint16_t uniffi_cdk_ffi_checksum_method_npubcashclient_get_missing_quotes(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_GET_QUOTES
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_GET_QUOTES
 uint16_t uniffi_cdk_ffi_checksum_method_npubcashclient_get_quotes(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_GET_USER_INFO
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_GET_USER_INFO
+uint16_t uniffi_cdk_ffi_checksum_method_npubcashclient_get_user_info(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_SET_MINT_URL
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_SET_MINT_URL
 uint16_t uniffi_cdk_ffi_checksum_method_npubcashclient_set_mint_url(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_SET_QUOTE_LOCKING
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_NPUBCASHCLIENT_SET_QUOTE_LOCKING
+uint16_t uniffi_cdk_ffi_checksum_method_npubcashclient_set_quote_locking(void
     
 );
 #endif
@@ -4010,6 +4270,72 @@ uint16_t uniffi_cdk_ffi_checksum_method_preparedmelt_total_fee_with_swap(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_CANCEL
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_CANCEL
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_cancel(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_CONFIRM
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_CONFIRM
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_confirm(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_INPUT_FEE
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_INPUT_FEE
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_input_fee(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_METHOD
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_METHOD
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_method(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_METHOD_FEE
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_METHOD_FEE
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_method_fee(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_MINT_URL
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_MINT_URL
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_mint_url(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_OPERATION_ID
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_OPERATION_ID
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_operation_id(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_PAYMENT_AMOUNT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_PAYMENT_AMOUNT
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_payment_amount(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_REQUESTED_AMOUNT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_REQUESTED_AMOUNT
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_requested_amount(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_TOTAL_AMOUNT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_TOTAL_AMOUNT
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_total_amount(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_UNIT
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDPAYMENTREQUEST_UNIT
+uint16_t uniffi_cdk_ffi_checksum_method_preparedpaymentrequest_unit(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDSEND_AMOUNT
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_PREPAREDSEND_AMOUNT
 uint16_t uniffi_cdk_ffi_checksum_method_preparedsend_amount(void
@@ -4232,9 +4558,21 @@ uint16_t uniffi_cdk_ffi_checksum_method_wallet_check_send_status(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_CLAIM_NPUBCASH_QUOTES
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_CLAIM_NPUBCASH_QUOTES
+uint16_t uniffi_cdk_ffi_checksum_method_wallet_claim_npubcash_quotes(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_CROSS_MINT_TRANSFER_QUOTE_MAX
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_CROSS_MINT_TRANSFER_QUOTE_MAX
 uint16_t uniffi_cdk_ffi_checksum_method_wallet_cross_mint_transfer_quote_max(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_ENABLE_NPUBCASH
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_ENABLE_NPUBCASH
+uint16_t uniffi_cdk_ffi_checksum_method_wallet_enable_npubcash(void
     
 );
 #endif
@@ -4283,6 +4621,12 @@ uint16_t uniffi_cdk_ffi_checksum_method_wallet_get_keyset_fees_and_amounts_by_id
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_GET_KEYSET_FEES_BY_ID
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_GET_KEYSET_FEES_BY_ID
 uint16_t uniffi_cdk_ffi_checksum_method_wallet_get_keyset_fees_by_id(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_GET_NPUBCASH_USER_INFO
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_GET_NPUBCASH_USER_INFO
+uint16_t uniffi_cdk_ffi_checksum_method_wallet_get_npubcash_user_info(void
     
 );
 #endif
@@ -4412,12 +4756,6 @@ uint16_t uniffi_cdk_ffi_checksum_method_wallet_mint_url(void
     
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PAY_REQUEST
-#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PAY_REQUEST
-uint16_t uniffi_cdk_ffi_checksum_method_wallet_pay_request(void
-    
-);
-#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PREPARE_MELT
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PREPARE_MELT
 uint16_t uniffi_cdk_ffi_checksum_method_wallet_prepare_melt(void
@@ -4433,6 +4771,12 @@ uint16_t uniffi_cdk_ffi_checksum_method_wallet_prepare_melt_proofs(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PREPARE_MELT_TOKEN
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PREPARE_MELT_TOKEN
 uint16_t uniffi_cdk_ffi_checksum_method_wallet_prepare_melt_token(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PREPARE_PAY_REQUEST
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_PREPARE_PAY_REQUEST
+uint16_t uniffi_cdk_ffi_checksum_method_wallet_prepare_pay_request(void
     
 );
 #endif
@@ -4541,6 +4885,12 @@ uint16_t uniffi_cdk_ffi_checksum_method_wallet_subscribe_mint_quote_state(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_SWAP
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_SWAP
 uint16_t uniffi_cdk_ffi_checksum_method_wallet_swap(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_SYNC_MISSING_NPUBCASH_QUOTES
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_METHOD_WALLET_SYNC_MISSING_NPUBCASH_QUOTES
+uint16_t uniffi_cdk_ffi_checksum_method_wallet_sync_missing_npubcash_quotes(void
     
 );
 #endif
@@ -5288,6 +5638,12 @@ uint16_t uniffi_cdk_ffi_checksum_method_walletsqlitedatabase_update_saga(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_CONSTRUCTOR_NOSTRINBOX_NEW
+#define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_CONSTRUCTOR_NOSTRINBOX_NEW
+uint16_t uniffi_cdk_ffi_checksum_constructor_nostrinbox_new(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_CONSTRUCTOR_NPUBCASHCLIENT_NEW
 #define UNIFFI_FFIDEF_UNIFFI_CDK_FFI_CHECKSUM_CONSTRUCTOR_NPUBCASHCLIENT_NEW
 uint16_t uniffi_cdk_ffi_checksum_constructor_npubcashclient_new(void
@@ -5385,6 +5741,9 @@ uint32_t ffi_cdk_ffi_uniffi_contract_version(void
 );
 #endif
 
+ void cdk_ffi_cgo_dispatchCallbackInterfaceNostrInboxListenerMethod0(uint64_t uniffi_handle, RustBuffer event, void* uniffi_out_return, RustCallStatus* callStatus );
+ void cdk_ffi_cgo_dispatchCallbackInterfaceNostrInboxListenerFree(uint64_t handle);
+uint64_t cdk_ffi_cgo_dispatchCallbackInterfaceNostrInboxListenerClone(uint64_t handle);
  void cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod0(uint64_t uniffi_handle, RustBuffer mint_url, UniffiForeignFutureCompleteRustBuffer uniffi_future_callback, uint64_t uniffi_callback_data, UniffiForeignFutureDroppedCallbackStruct* uniffi_out_dropped_callback);
  void cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod1(uint64_t uniffi_handle, UniffiForeignFutureCompleteRustBuffer uniffi_future_callback, uint64_t uniffi_callback_data, UniffiForeignFutureDroppedCallbackStruct* uniffi_out_dropped_callback);
  void cdk_ffi_cgo_dispatchCallbackInterfaceWalletDatabaseMethod2(uint64_t uniffi_handle, RustBuffer mint_url, UniffiForeignFutureCompleteRustBuffer uniffi_future_callback, uint64_t uniffi_callback_data, UniffiForeignFutureDroppedCallbackStruct* uniffi_out_dropped_callback);
