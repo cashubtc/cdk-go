@@ -5,7 +5,7 @@ rust-version = "1.85.0"
 license = "MIT"
 homepage = "https://github.com/cashubtc/cdk"
 repository = "https://github.com/cashubtc/cdk.git"
-version = "0.17.6"
+version = "0.18.0"
 readme = "README.md"
 
 [lib]
@@ -13,11 +13,7 @@ crate-type = ["cdylib"]
 name = "cdk_ffi_go"
 
 [dependencies]
-cdk-ffi = { version = "=0.17.6", features = ["npubcash", "nwc", "bip353"] }
-uniffi = { version = "0.30", features = ["cli"] }
-
-[build-dependencies]
-uniffi = { version = "0.30", features = ["build"] }
+cdk-ffi = { git = "https://github.com/cashubtc/cdk", rev = "a9fd5e7f025fcf11d3abc71766b71117cdfec41b", features = ["npubcash", "nwc", "bip353"] }
 
 [lints]
 
