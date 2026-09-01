@@ -19889,7 +19889,7 @@ type MintMethodSettings struct {
 	MethodName *string
 	MinAmount  *Amount
 	MaxAmount  *Amount
-	// For bolt11, whether mint supports setting invoice description
+	// For bolt11/bolt12, whether mint supports setting invoice/offer description
 	Description *bool
 }
 
