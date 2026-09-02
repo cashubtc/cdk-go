@@ -2,10 +2,10 @@
 name = "cdk-ffi-go"
 edition = "2021"
 rust-version = "1.85.0"
-license = "MIT"
+license = "Apache-2.0 OR MIT"
 homepage = "https://github.com/cashubtc/cdk"
 repository = "https://github.com/cashubtc/cdk.git"
-version = "0.18.0-rc.3"
+version = "0.18.0"
 readme = "README.md"
 
 [lib]
@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 name = "cdk_ffi_go"
 
 [dependencies]
-cdk-ffi = { version = "=0.18.0-rc.3", features = ["npubcash", "nwc", "bip353"] }
+cdk-ffi = { version = "=0.18.0", features = ["npubcash", "nwc", "bip353"] }
 
 [lints]
 
