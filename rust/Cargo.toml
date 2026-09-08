@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 name = "cdk_ffi_go"
 
 [dependencies]
-cdk-ffi = { version = "=0.18.0", features = ["npubcash", "nwc", "bip353"] }
+cdk-ffi = { git = "https://github.com/cashubtc/cdk", rev = "551d13426b3d3b680bf3991d86a598a0f5b163f3", features = ["npubcash", "nwc", "bip353"] }
 
 [lints]
 
