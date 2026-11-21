@@ -89,3 +89,14 @@ Set this under **Settings → Secrets and variables → Actions → Variables**.
 ## License
 
 [MIT](https://github.com/cashubtc/cdk/blob/main/LICENSE)
+
+## Send and receive options
+
+Always build option structs with `cdk_ffi.NewSendOptions` and `cdk_ffi.NewReceiveOptions`:
+
+```go
+send := cdk_ffi.NewSendOptions(true)
+recv := cdk_ffi.NewReceiveOptions()
+```
+
+Zero-value structs leave required Rust enums unset and panic inside the uniffi converters before any wallet logic runs. `Validate()` is available if you construct the structs manually.
